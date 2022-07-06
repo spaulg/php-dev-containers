@@ -1,0 +1,40 @@
+Add aarch64 support to the opcache configuration macro for testing shared memory support
+--- a/ext/opcache/config.m4
++++ b/ext/opcache/config.m4
+@@ -29,7 +29,7 @@
+ 
+   if test "$PHP_OPCACHE_JIT" = "yes"; then
+     case $host_cpu in
+-      i[[34567]]86*|x86*)
++      i[[34567]]86*|x86*|aarch64)
+         ;;
+       *)
+         AC_MSG_WARN([JIT not supported by host architecture])
+@@ -63,6 +63,9 @@
+         *x86_64*)
+           DASM_FLAGS="-D X64=1"
+         ;;
++        aarch64*)
++          DASM_FLAGS="-D ARM64=1"
++          ;;
+       esac
+     fi
+ 
+@@ -219,7 +222,16 @@
+ }
+ ]])],[dnl
+     AC_DEFINE(HAVE_SHM_MMAP_ANON, 1, [Define if you have mmap(MAP_ANON) SHM support])
+-    have_shm_mmap_anon=yes],[have_shm_mmap_anon=no],[have_shm_mmap_anon=no])
++    have_shm_mmap_anon=yes],[have_shm_mmap_anon=no],[
++      case $host_alias in
++        *linux*)
++          have_shm_mmap_anon=yes
++          ;;
++        *)
++          have_shm_mmap_anon=no
++          ;;
++      esac
++    ])
+   AC_MSG_RESULT([$have_shm_mmap_anon])
+ 
+   PHP_CHECK_FUNC_LIB(shm_open, rt, root)

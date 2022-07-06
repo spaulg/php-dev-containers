@@ -1,0 +1,66 @@
+name: 'Build container images'
+
+on:
+  workflow_call:
+    inputs:
+      matrix:
+        type: string
+        description: 'JSON encoded matrix for versions to build'
+        required: true
+
+      push:
+        type: boolean
+        description: 'Push the build to Docker Hub'
+        required: false
+        default: false
+
+    secrets:
+      DOCKERHUB_USERNAME: { required: true}
+      DOCKERHUB_TOKEN: { required: true}
+
+jobs:
+  package_versions:
+    name: PHP ${{ matrix.version }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJSON(inputs.matrix)}}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Install Dagger CLI
+        run: |
+          cd /usr/local && { curl -L https://dl.dagger.io/dagger/install.sh | sh; cd -; }
+
+      - name: Save package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-package-${{ matrix.version }}
+          path: assets/packages
+
+      - name: Build amd64 packages
+        shell: bash
+        run: |
+          dagger run go run cmd/build_images/*.go \
+            --version=${{ matrix.full_version }} \
+            --suffix=${{ matrix.suffix }} \
+            --architecture=amd64 \
+            2>&1 | tee build-image.amd64.log
+
+      - name: Save files to build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-image-${{ matrix.version }}
+          if-no-files-found: ignore
+          path: |
+            *.log

@@ -1,0 +1,39 @@
+--- a/ext/fileinfo/config.m4
++++ b/ext/fileinfo/config.m4
+@@ -14,7 +14,7 @@
+     libmagic/readcdf.c libmagic/softmagic.c"
+ 
+   AC_MSG_CHECKING([for strcasestr])
+-  AC_TRY_RUN([
++  AC_RUN_IFELSE([AC_LANG_SOURCE([[
+ #include <string.h>
+ #include <strings.h>
+ #include <stdlib.h>
+@@ -39,14 +39,14 @@
+ 
+         return !(NULL != ret);
+ }
+-  ],[
++  ]])],[
+     dnl using the platform implementation
+     AC_MSG_RESULT(yes)
+   ],[
+     AC_MSG_RESULT(no)
+     AC_MSG_NOTICE(using libmagic strcasestr implementation)
+     libmagic_sources="$libmagic_sources libmagic/strcasestr.c"
+-  ])
++  ],[AC_MSG_RESULT([skipped, cross-compiling])])
+ 
+   PHP_NEW_EXTENSION(fileinfo, fileinfo.c $libmagic_sources, $ext_shared,,-I@ext_srcdir@/libmagic)
+   PHP_ADD_BUILD_DIR($ext_builddir/libmagic)
+--- a/configure.in
++++ b/configure.in
+@@ -8,7 +8,7 @@
+ dnl Basic autoconf + automake initialization, generation of config.nice.
+ dnl -------------------------------------------------------------------------
+ 
+-AC_PREREQ(2.59)
++AC_PREREQ([2.68])
+ AC_INIT(README.GIT-RULES)
+ ifdef([AC_PRESERVE_HELP_ORDER], [AC_PRESERVE_HELP_ORDER], [])
+ 

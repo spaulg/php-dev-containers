@@ -1,0 +1,33 @@
+name: 'Detect containers to build'
+
+on:
+  workflow_call:
+    secrets:
+      DOCKERHUB_USERNAME: { required: true}
+      DOCKERHUB_TOKEN: { required: true}
+
+    outputs:
+      matrix:
+        description: Detected versions build matrix
+        value: ${{ jobs.detect_versions.outputs.matrix }}
+
+jobs:
+  detect_versions:
+    name: Detect versions to build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 3
+
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect versions
+        id: generate-matrix
+        uses: ./.github/actions/version-matrix
+        with:
+          registry-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          registry-password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry-repository: spaulg/php-ext-dev-containers

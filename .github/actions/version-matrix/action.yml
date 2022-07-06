@@ -1,0 +1,39 @@
+name: 'Version matrix'
+description: 'Generate a version matrix'
+
+inputs:
+  registry-username:
+    description: 'Username to the container registry'
+    required: true
+
+  registry-password:
+    description: 'Password to the container registry'
+    required: true
+
+  registry-repository:
+    description: 'Container repository in the registry'
+    required: true
+
+outputs:
+  matrix:
+    description: Generated version matrix
+    value: ${{ steps.generate-matrix.outputs.matrix }}
+
+runs:
+  using: 'composite'
+  steps:
+      - shell: bash
+        working-directory: .github/actions/version-matrix
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip3 install -r requirements.txt
+
+      - shell: bash
+        id: generate-matrix
+        working-directory: .github/actions/version-matrix
+        env:
+          REGISTRY_USERNAME: ${{ inputs.registry-username }}
+          REGISTRY_PASSWORD: ${{ inputs.registry-password }}
+        run: |
+          echo "matrix=$(python3 build_versions.py ${{ inputs.registry-repository }})" >> $GITHUB_OUTPUT

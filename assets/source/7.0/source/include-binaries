@@ -1,0 +1,15 @@
+debian/patches/0062-Fix-bug-77540-Invalid-Read-on-exif_process_SOFn.patch
+debian/patches/0063-Fix-bug-77563-Uninitialized-read-in-exif_process_IFD.patch
+debian/patches/0074-Fix-bug-77753-Heap-buffer-overflow-in-php_ifd_get32s.patch
+debian/patches/0079-Fix-bug-77950-Heap-buffer-overflow-in-_estrndup-via-.patch
+debian/patches/0084-Fix-bug-77988-heap-buffer-overflow-on-php_jpg_get16.patch
+debian/patches/0082-Fix-bug-78069-Out-of-bounds-read-in-iconv.c-_php_ico.patch
+debian/patches/0088-Fix-bug-78222-heap-buffer-overflow-on-exif_scan_thum.patch
+debian/patches/0089-Fix-bug-78256-heap-buffer-overflow-on-exif_process_u.patch
+debian/patches/0135-Fix-79797-Use-of-freed-hash-key-in-the-phar_parse_zi.patch
+debian/patches/0157-Fix-76452-Crash-while-parsing-blob-data-in-firebird_.patch
+debian/patches/0160-Fix-76448-Stack-buffer-overflow-in-firebird_info_cb.patch
+debian/patches/0159-Fix-76449-SIGSEGV-in-firebird_handle_doer.patch
+debian/patches/0158-Fix-76450-SIGSEGV-in-firebird_stmt_execute.patch
+debian/patches/0167-Fix-81420-ZipArchive-extractTo-extracts-outside-of-d.patch
+debian/patches/0180-Fix-81726-phar-wrapper-DOS-when-using-quine-gzip-fil.patch
