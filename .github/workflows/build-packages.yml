@@ -34,7 +34,7 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: '1.21'
+          go-version: '1.22'
 
       - name: Install Dagger CLI
         run: |
@@ -51,7 +51,7 @@ jobs:
             --version=${{ matrix.full_version }} \
             --suffix=${{ matrix.suffix }} \
             --architecture=amd64 \
-            2>&1 | tee output/build.amd64.log
+            2>&1 | tee build.amd64.log
 
       - name: Build arm64 packages
         shell: bash
@@ -60,7 +60,7 @@ jobs:
             --version=${{ matrix.full_version }} \
             --suffix=${{ matrix.suffix }} \
             --architecture=arm64 \
-            2>&1 | tee output/build.arm64.log
+            2>&1 | tee build.arm64.log
 
       - name: Save deb files to build
         if: always()
@@ -69,5 +69,5 @@ jobs:
           name: ${{ matrix.version }}
           if-no-files-found: ignore
           path: |
-            output/*.log
-            output/*.deb
+            *.log
+            assets/packages/*.deb
