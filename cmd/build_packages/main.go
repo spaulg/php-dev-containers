@@ -50,7 +50,7 @@ func ExportArtifacts(buildParameters *build.BuildParameters, ctx context.Context
 	} else {
 		for _, file := range files {
 			_, err = container.
-				Directory("/").
+				Directory("/home/build/packages").
 				File(file).
 				Export(ctx, "assets/packages", dagger.FileExportOpts{AllowParentDirPath: true})
 
