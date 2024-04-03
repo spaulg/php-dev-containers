@@ -53,7 +53,7 @@ func ParseArguments() *BuildParameters {
 			return fmt.Errorf("argument --version is not a valid semantic version: %v", err)
 		}
 
-		buildParameters.Version = s
+		buildParameters.Version = fmt.Sprintf("%d.%d.%d", version.Major(), version.Minor(), version.Patch())
 		buildParameters.ShortVersion = fmt.Sprintf("%d.%d", version.Major(), version.Minor())
 		buildParameters.MajorVersion = fmt.Sprintf("%d", version.Major())
 		buildParameters.MinorVersion = fmt.Sprintf("%d", version.Minor())
