@@ -79,7 +79,7 @@ func buildOutput(buildParameters *build.BuildParameters, ctx context.Context, cl
 		}
 
 		for _, file := range globFiles {
-			file = "/" + file
+			file = buildParameters.BuildDirectoryPath + "/" + file
 
 			log.Println("Removing file: " + file)
 			removeFiles = append(removeFiles, file)
