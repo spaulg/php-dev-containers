@@ -48,4 +48,13 @@ jobs:
             --version=${{ matrix.full_version }} \
             --suffix=${{ matrix.suffix }} \
             --architecture=amd64 \
-            2>&1 | tee output/build.amd64.log
+            2>&1 | tee build-image.amd64.log
+
+      - name: Save files to build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-image-${{ matrix.version }}
+          if-no-files-found: ignore
+          path: |
+            *.log

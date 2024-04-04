@@ -52,7 +52,7 @@ jobs:
             --version=${{ matrix.full_version }} \
             --suffix=${{ matrix.suffix }} \
             --architecture=amd64 \
-            2>&1 | tee build.amd64.log
+            2>&1 | tee build-package.amd64.log
 
       - name: Build arm64 packages
         shell: bash
@@ -61,13 +61,13 @@ jobs:
             --version=${{ matrix.full_version }} \
             --suffix=${{ matrix.suffix }} \
             --architecture=arm64 \
-            2>&1 | tee build.arm64.log
+            2>&1 | tee build-package.arm64.log
 
-      - name: Save deb files to build
+      - name: Save files to build
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.version }}
+          name: build-package-${{ matrix.version }}
           if-no-files-found: ignore
           path: |
             *.log
