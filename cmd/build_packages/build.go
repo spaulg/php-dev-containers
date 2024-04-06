@@ -22,7 +22,7 @@ func buildOutput(buildParameters *build.BuildParameters, ctx context.Context, cl
 
 	// Start container
 	container, err = client.Container().
-		From(buildParameters.ContainerImage).
+		From(buildParameters.BuildContainerImage).
 		Sync(ctx)
 
 	if err != nil {

@@ -12,25 +12,29 @@ import (
 )
 
 type BuildParameters struct {
-	Version            string
-	ShortVersion       string
-	MajorVersion       string
-	MinorVersion       string
-	PatchVersion       string
-	Suffix             string
-	PackageName        string
-	Distribution       string
-	Architecture       string
-	BuildNumber        int
-	ContainerImage     string
-	BuildDirectoryName string
-	BuildDirectoryPath string
-	NoCache            bool
+	Version                   string
+	ShortVersion              string
+	MajorVersion              string
+	MinorVersion              string
+	PatchVersion              string
+	Suffix                    string
+	PackageName               string
+	Distribution              string
+	Architecture              string
+	BuildNumber               int
+	BuildContainerImage       string
+	BuildDirectoryName        string
+	BuildDirectoryPath        string
+	TargetBaseContainerImage  string
+	TargetBuildContainerImage string
+	NoCache                   bool
 }
 
 const defaultDistribution = "bullseye"
 const defaultBuildNumber = 1
-const containerImageRepository = "docker.io/spaulg/debuilder"
+const buildContainerImageRepository = "docker.io/spaulg/debuilder"
+const targetBaseContainerImageRepository = "docker.io/_/debian"
+const targetBuildContainerImageRepository = "docker.io/spaulg/php-ext-dev-containers"
 const packagePrefix = "php"
 const packageDirectoryBase = "/home/build/packages"
 
@@ -118,9 +122,11 @@ func ParseArguments() *BuildParameters {
 
 	// Complete derived fields
 	buildParameters.PackageName = packagePrefix + buildParameters.ShortVersion + buildParameters.Suffix
-	buildParameters.ContainerImage = containerImageRepository + ":" + buildParameters.Distribution
+	buildParameters.BuildContainerImage = buildContainerImageRepository + ":" + buildParameters.Distribution
 	buildParameters.BuildDirectoryName = buildParameters.PackageName + "_" + buildParameters.Version
 	buildParameters.BuildDirectoryPath = packageDirectoryBase + "/" + buildParameters.BuildDirectoryName
+	buildParameters.TargetBaseContainerImage = targetBaseContainerImageRepository + ":" + buildParameters.Distribution
+	buildParameters.TargetBuildContainerImage = targetBuildContainerImageRepository + ":" + buildParameters.Distribution
 
 	log.Println("Version: " + buildParameters.Version)
 	log.Println("Short version: " + buildParameters.ShortVersion)
@@ -129,7 +135,9 @@ func ParseArguments() *BuildParameters {
 	log.Println("Distribution: " + buildParameters.Distribution)
 	log.Println("Architecture: " + buildParameters.Architecture)
 	log.Println("BuildNumber: " + strconv.Itoa(buildParameters.BuildNumber))
-	log.Println("ContainerImage: " + buildParameters.ContainerImage)
+	log.Println("BuildContainerImage: " + buildParameters.BuildContainerImage)
+	log.Println("TargetBaseContainerImage: " + buildParameters.TargetBaseContainerImage)
+	log.Println("TargetBuildContainerImage: " + buildParameters.TargetBuildContainerImage)
 
 	return &buildParameters
 }

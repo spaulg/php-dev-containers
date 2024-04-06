@@ -41,6 +41,12 @@ jobs:
         run: |
           cd /usr/local && { curl -L https://dl.dagger.io/dagger/install.sh | sh; cd -; }
 
+      - name: Save package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-package-${{ matrix.version }}
+          path: assets/packages
+
       - name: Build amd64 packages
         shell: bash
         run: |
