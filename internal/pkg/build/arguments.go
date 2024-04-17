@@ -34,7 +34,7 @@ const defaultDistribution = "bullseye"
 const defaultBuildNumber = 1
 const buildContainerImageRepository = "docker.io/spaulg/debuilder"
 const targetBaseContainerImageRepository = "docker.io/debian"
-const targetBuildContainerImageRepository = "docker.io/spaulg/php-ext-dev-containers"
+const targetBuildContainerImageRepository = "docker.io/spaulg/php-dev-containers"
 const packagePrefix = "php"
 const packageDirectoryBase = "/home/build/packages"
 
