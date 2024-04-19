@@ -1,0 +1,8 @@
+debian/patches/use_updated_install-pear-nozlib.phar.patch
+debian/patches/0089-Fix-79797-Use-of-freed-hash-key-in-the-phar_parse_zi.patch
+debian/patches/0111-Fix-76452-Crash-while-parsing-blob-data-in-firebird_.patch
+debian/patches/0112-Fix-76450-SIGSEGV-in-firebird_stmt_execute.patch
+debian/patches/0113-Fix-76449-SIGSEGV-in-firebird_handle_doer.patch
+debian/patches/0114-Fix-76448-Stack-buffer-overflow-in-firebird_info_cb.patch
+debian/patches/0122-Fix-81420-ZipArchive-extractTo-extracts-outside-of-d.patch
+debian/patches/0135-Fix-81726-phar-wrapper-DOS-when-using-quine-gzip-fil.patch

@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+include $(CURDIR)/debian/rules.d/includes/*.mk
+include $(CURDIR)/debian/rules.d/extensions/*.mk
+
+#extensions
+
+ext_DEBS       := $(addprefix php$(PHP_NAME_VERSION)-,$(ext_PACKAGES))
+ext_EXTENSIONS := $(foreach ext_package,$(ext_PACKAGES),$($(ext_package)_EXTENSIONS))
+ext_config     += $(foreach ext_ext,$(ext_EXTENSIONS),$($(ext_ext)_config))
+
+#$(info Enabled packages $(ext_DEBS))
+#$(info Enabled extensions $(ext_EXTENSIONS))
+#$(info Enabled config $(ext_config))
+
+%:
+	dh $@ --with systemd --with apache2 --without=build-stamp --without autoreconf $(PARALLEL)
+
+include $(CURDIR)/debian/rules.d/clean.mk
+include $(CURDIR)/debian/rules.d/build.mk
+include $(CURDIR)/debian/rules.d/binary.mk
+
+.PHONY: prepare prepared unprepared
