@@ -18,6 +18,9 @@ on:
       DOCKERHUB_USERNAME: { required: true}
       DOCKERHUB_TOKEN: { required: true}
 
+env:
+  DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+
 jobs:
   package_versions:
     name: PHP ${{ matrix.version }}
@@ -47,7 +50,7 @@ jobs:
           name: build-package-${{ matrix.version }}
           path: assets/packages
 
-      - name: Build amd64 packages
+      - name: Build amd64 image
         shell: bash
         run: |
           dagger run go run cmd/build_images/*.go \

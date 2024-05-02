@@ -30,7 +30,7 @@ jobs:
 
   build_images:
     name: Build Container Images
-    if: needs.version_matrix.result == 'success' && always()
+    if: needs.version_matrix.result != 'cancelled'
     needs: ['version_matrix', 'build_packages']
     uses: ./.github/workflows/subflow-build-container-images.yml
     secrets: inherit
