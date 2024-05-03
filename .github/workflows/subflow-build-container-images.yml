@@ -47,7 +47,7 @@ jobs:
           name: build-package-${{ matrix.version }}
           path: assets/packages
 
-      - name: Build amd64 packages
+      - name: Build amd64 images
         shell: bash
         run: |
           dagger run go run cmd/build_images/*.go \
