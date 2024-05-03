@@ -8,26 +8,32 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 )
 
 type BuildParameters struct {
-	Version                   string
-	ShortVersion              string
-	MajorVersion              string
-	MinorVersion              string
-	PatchVersion              string
-	Suffix                    string
-	PackageName               string
-	Distribution              string
-	Architecture              string
-	BuildNumber               int
-	BuildContainerImage       string
-	BuildDirectoryName        string
-	BuildDirectoryPath        string
+	Version      string
+	ShortVersion string
+	MajorVersion string
+	MinorVersion string
+	PatchVersion string
+	Suffix       string
+	PackageName  string
+	Distribution string
+	Architecture string
+	BuildNumber  int
+
+	BuildContainerImage    string
+	BuildDirectoryName     string
+	BuildDirectoryPath     string
+	BuildDirectoryRootPath string
+
 	TargetBaseContainerImage  string
 	TargetBuildContainerImage string
-	NoCache                   bool
+
+	NoCache             bool
+	OutputDirectoryPath string
 }
 
 const defaultDistribution = "bullseye"
@@ -37,13 +43,15 @@ const targetBaseContainerImageRepository = "docker.io/debian"
 const targetBuildContainerImageRepository = "docker.io/spaulg/php-dev-containers"
 const packagePrefix = "php"
 const packageDirectoryBase = "/home/build/packages"
+const outputDirectoryBase = "assets/packages"
 
 // ParseArguments parses the command line arguments and returns a BuildParameters struct of validated arguments
 func ParseArguments() *BuildParameters {
 	buildParameters := BuildParameters{
-		Architecture: runtime.GOARCH,
-		Distribution: defaultDistribution,
-		BuildNumber:  defaultBuildNumber,
+		Architecture:           runtime.GOARCH,
+		Distribution:           defaultDistribution,
+		BuildNumber:            defaultBuildNumber,
+		BuildDirectoryRootPath: packageDirectoryBase,
 	}
 
 	flag.BoolFunc("no-cache", "No caching", func(s string) error {
@@ -113,6 +121,15 @@ func ParseArguments() *BuildParameters {
 		return nil
 	})
 
+	flag.Func("output-path", "Output path", func(s string) error {
+		if s == "" {
+			return fmt.Errorf("--output-path argument cannot be empty")
+		}
+
+		buildParameters.OutputDirectoryPath = s
+		return nil
+	})
+
 	flag.Parse()
 
 	// Version is a required field
@@ -124,9 +141,14 @@ func ParseArguments() *BuildParameters {
 	buildParameters.PackageName = packagePrefix + buildParameters.ShortVersion + buildParameters.Suffix
 	buildParameters.BuildContainerImage = buildContainerImageRepository + ":" + buildParameters.Distribution
 	buildParameters.BuildDirectoryName = buildParameters.PackageName + "_" + buildParameters.Version
-	buildParameters.BuildDirectoryPath = packageDirectoryBase + "/" + buildParameters.BuildDirectoryName
+	buildParameters.BuildDirectoryPath = buildParameters.BuildDirectoryRootPath + "/" + buildParameters.BuildDirectoryName
 	buildParameters.TargetBaseContainerImage = targetBaseContainerImageRepository + ":" + buildParameters.Distribution
 	buildParameters.TargetBuildContainerImage = targetBuildContainerImageRepository + ":" + buildParameters.Distribution
+
+	if buildParameters.OutputDirectoryPath == "" {
+		timestamp := time.Now().Unix()
+		buildParameters.OutputDirectoryPath = outputDirectoryBase + "/" + buildParameters.BuildDirectoryName + "_" + strconv.FormatInt(timestamp, 10)
+	}
 
 	log.Println("Version: " + buildParameters.Version)
 	log.Println("Short version: " + buildParameters.ShortVersion)
@@ -135,9 +157,16 @@ func ParseArguments() *BuildParameters {
 	log.Println("Distribution: " + buildParameters.Distribution)
 	log.Println("Architecture: " + buildParameters.Architecture)
 	log.Println("BuildNumber: " + strconv.Itoa(buildParameters.BuildNumber))
+
 	log.Println("BuildContainerImage: " + buildParameters.BuildContainerImage)
+	log.Println("BuildDirectoryRootPath: " + buildParameters.BuildDirectoryRootPath)
+	log.Println("BuildDirectoryName: " + buildParameters.BuildDirectoryName)
+	log.Println("BuildDirectoryPath: " + buildParameters.BuildDirectoryPath)
+
 	log.Println("TargetBaseContainerImage: " + buildParameters.TargetBaseContainerImage)
 	log.Println("TargetBuildContainerImage: " + buildParameters.TargetBuildContainerImage)
+
+	log.Println("OutputDirectoryPath: " + buildParameters.OutputDirectoryPath)
 
 	return &buildParameters
 }

@@ -52,8 +52,8 @@ func buildOutput(buildParameters *build.BuildParameters, ctx context.Context, cl
 
 	// Prepare package
 	container, err = container.
-		WithExec([]string{"cp", "/home/build/source/" + sourceArchiveFileName, "/home/build/packages/" + sourceArchiveFileName}).
-		WithExec([]string{"tar", "-xzf", "/home/build/packages/" + sourceArchiveFileName, "--strip-components=1", "--exclude", "debian"}).
+		WithExec([]string{"cp", "/home/build/source/" + sourceArchiveFileName, buildParameters.BuildDirectoryRootPath + "/" + sourceArchiveFileName}).
+		WithExec([]string{"tar", "-xzf", buildParameters.BuildDirectoryRootPath + "/" + sourceArchiveFileName, "--strip-components=1", "--exclude", "debian"}).
 		WithExec([]string{"cp", "-R", "/home/build/source/" + buildParameters.ShortVersion, buildParameters.BuildDirectoryPath + "/debian"}).
 		WithExec([]string{"rm", "-f", "debian/changelog"}).
 		WithExec([]string{"debchange", "--create", "--package", buildParameters.PackageName, "--distribution", "stable", "-v", buildParameters.Version + "-" + strconv.Itoa(buildParameters.BuildNumber), buildParameters.Version + "-" + strconv.Itoa(buildParameters.BuildNumber) + " automated build"}).

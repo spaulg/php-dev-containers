@@ -48,6 +48,7 @@ jobs:
             --version=${{ matrix.full_version }} \
             --suffix=${{ matrix.suffix }} \
             --architecture=amd64 \
+            --output-path=assets/packages \
             2>&1 | tee build-package.amd64.log
 
       - name: Build arm64 packages
@@ -57,6 +58,7 @@ jobs:
             --version=${{ matrix.full_version }} \
             --suffix=${{ matrix.suffix }} \
             --architecture=arm64 \
+            --output-path=assets/packages \
             2>&1 | tee build-package.arm64.log
 
       - name: Save files to build
