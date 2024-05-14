@@ -35,11 +35,11 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '${{ vars.GO_VERSION }}'
 
       - name: Install Dagger CLI
         run: |
-          cd /usr/local && { curl -L https://dl.dagger.io/dagger/install.sh | sh; cd -; }
+          cd /usr/local && { curl -sSfL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ vars.DAGGER_VERSION }} sh; cd -; }
 
       - name: Save package artifacts
         uses: actions/download-artifact@v4

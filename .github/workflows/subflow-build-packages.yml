@@ -35,15 +35,11 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '${{ vars.GO_VERSION }}'
 
       - name: Install Dagger CLI
         run: |
-          cd /usr/local && { curl -L https://dl.dagger.io/dagger/install.sh | sh; cd -; }
-
-      - name: Create output directory
-        run: |
-          mkdir -p output
+          cd /usr/local && { curl -sSfL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ vars.DAGGER_VERSION }} sh; cd -; }
 
       - name: Build amd64 packages
         shell: bash
