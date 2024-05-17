@@ -20,18 +20,9 @@ jobs:
     uses: ./.github/workflows/subflow-detect-versions.yml
     secrets: inherit
 
-  build_packages:
-    name: Build Packages
-    needs: ['version_matrix']
-    uses: ./.github/workflows/subflow-build-packages.yml
-    secrets: inherit
-    with:
-      matrix: ${{ needs.version_matrix.outputs.matrix }}
-
   build_images:
-    name: Build Container Images
-    if: needs.version_matrix.result != 'cancelled'
-    needs: ['version_matrix', 'build_packages']
+    name: Build Images
+    needs: ['version_matrix']
     uses: ./.github/workflows/subflow-build-container-images.yml
     secrets: inherit
     with:
