@@ -33,8 +33,10 @@ func RunBuild() int {
 
 func ExportArtifacts(buildParameters *build.BuildParameters, ctx context.Context, container *dagger.Container) int {
 	// Create the output directory if it does not exist
-	if _, err := os.Stat("assets/packages"); errors.Is(err, os.ErrNotExist) {
-		if err = os.MkdirAll("assets/packages", 0755); err != nil {
+	if _, err := os.Stat(buildParameters.OutputDirectoryPath); errors.Is(err, os.ErrNotExist) {
+		log.Println("Creating export output directory: " + buildParameters.OutputDirectoryPath)
+		if err = os.MkdirAll(buildParameters.OutputDirectoryPath, 0755); err != nil {
+			log.Println("Failed to create export output directory")
 			log.Println(err)
 			return 1
 		}
@@ -42,23 +44,30 @@ func ExportArtifacts(buildParameters *build.BuildParameters, ctx context.Context
 
 	// Export debian package files
 	exitCode := 0
-	directory := container.Directory("/home/build/packages")
+	directory := container.Directory(buildParameters.BuildDirectoryRootPath)
 	files, err := directory.Glob(ctx, "**.deb")
 
 	if err != nil {
+		log.Println("Encountered error whilst globbing files for export")
 		exitCode = 1
-	} else {
+	} else if len(files) > 0 {
+		log.Println("Exporting files:")
+
 		for _, file := range files {
+			log.Println("  " + buildParameters.BuildDirectoryRootPath + "/" + file + " to " + buildParameters.OutputDirectoryPath + "/" + file)
+
 			_, err = container.
-				Directory("/home/build/packages").
+				Directory(buildParameters.BuildDirectoryRootPath).
 				File(file).
-				Export(ctx, "assets/packages", dagger.FileExportOpts{AllowParentDirPath: true})
+				Export(ctx, buildParameters.OutputDirectoryPath, dagger.FileExportOpts{AllowParentDirPath: true})
 
 			if err != nil {
 				log.Println(err)
 				exitCode = 1
 			}
 		}
+	} else {
+		log.Println("No matching files to export")
 	}
 
 	return exitCode
