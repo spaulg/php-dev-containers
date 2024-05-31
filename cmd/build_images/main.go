@@ -1,16 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"main/internal/pkg/build"
-	"os"
 )
 
 func main() {
-	os.Exit(RunBuild())
+	err := RunBuild()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-func RunBuild() int {
+func RunBuild() error {
 	// Parse command arguments to capture build information
 	buildParameters := build.ParseArguments()
 
@@ -19,11 +22,9 @@ func RunBuild() int {
 	defer client.Close()
 
 	// Build package
-	_, err := buildOutput(buildParameters, ctx, client)
-
-	if err != nil {
-		log.Println(err)
+	if _, err := buildOutput(buildParameters, ctx, client); err != nil {
+		return fmt.Errorf("failed to build image: %w", err)
 	}
 
-	return 0
+	return nil
 }
