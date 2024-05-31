@@ -19,7 +19,7 @@ on:
       DOCKERHUB_TOKEN: { required: true}
 
 jobs:
-  package_versions:
+  build_images:
     name: PHP ${{ matrix.version }}
     runs-on: ubuntu-22.04
     timeout-minutes: 120
@@ -40,12 +40,21 @@ jobs:
       - name: Install Dagger CLI
         run: |
           cd /usr/local && { curl -sSfL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=${{ vars.DAGGER_VERSION }} sh; cd -; }
-
-      - name: Save package artifacts
-        uses: actions/download-artifact@v4
+          
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          name: build-package-${{ matrix.version }}
-          path: assets/packages
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build amd64 packages
+        shell: bash
+        run: |
+          dagger run go run cmd/build_packages/*.go \
+            --version=${{ matrix.full_version }} \
+            --suffix=${{ matrix.suffix }} \
+            --architecture=amd64 \
+            2>&1 | tee build-package.amd64.log
 
       - name: Build amd64 images
         shell: bash
@@ -56,11 +65,31 @@ jobs:
             --architecture=amd64 \
             2>&1 | tee build-image.amd64.log
 
+      - name: Build arm64 packages
+        shell: bash
+        run: |
+          dagger run go run cmd/build_packages/*.go \
+            --version=${{ matrix.full_version }} \
+            --suffix=${{ matrix.suffix }} \
+            --architecture=arm64 \
+            2>&1 | tee build-package.arm64.log
+
+      - name: Build amd64 images
+        shell: bash
+        run: |
+          dagger run go run cmd/build_images/*.go \
+            --version=${{ matrix.full_version }} \
+            --suffix=${{ matrix.suffix }} \
+            --architecture=arm64 \
+            2>&1 | tee build-image.amd64.log
+
       - name: Save files to build
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-image-${{ matrix.version }}
+          name: build-package-${{ matrix.version }}
           if-no-files-found: ignore
           path: |
             *.log
+            assets/packages/${{ matrix.package_name }}_${{ matrix.full_version }}-amd64/*.deb
+            assets/packages/${{ matrix.package_name }}_${{ matrix.full_version }}-arm64/*.deb

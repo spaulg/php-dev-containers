@@ -58,9 +58,9 @@ func buildOutput(buildParameters *build.BuildParameters, ctx context.Context, cl
 		WithExec([]string{"rm", "-f", "debian/changelog"}).
 		WithExec([]string{"debchange", "--create", "--package", buildParameters.PackageName, "--distribution", "stable", "-v", buildParameters.Version + "-" + strconv.Itoa(buildParameters.BuildNumber), buildParameters.Version + "-" + strconv.Itoa(buildParameters.BuildNumber) + " automated build"}).
 		WithExec([]string{"make", "-f", "debian/rules", "prepare"}).
-		WithExec([]string{"sudo", "dpkg", "--add-architecture", buildParameters.Architecture}).
+		WithExec([]string{"sudo", "dpkg", "--add-architecture", buildParameters.TargetArchitecture}).
 		WithExec([]string{"sudo", "apt", "update", "-y"}).
-		WithExec([]string{"sudo", "mk-build-deps", "-i", "-t", "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y", "--host-arch", buildParameters.Architecture}).
+		WithExec([]string{"sudo", "mk-build-deps", "-i", "-t", "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y", "--host-arch", buildParameters.TargetArchitecture}).
 		Sync(ctx)
 
 	if err != nil {
@@ -98,6 +98,6 @@ func buildOutput(buildParameters *build.BuildParameters, ctx context.Context, cl
 
 	// Final build
 	return container.
-		WithExec([]string{"debuild", "-us", "-uc", "-a" + buildParameters.Architecture}).
+		WithExec([]string{"debuild", "-us", "-uc", "-a" + buildParameters.TargetArchitecture}).
 		Sync(ctx)
 }
