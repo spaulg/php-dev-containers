@@ -18,6 +18,9 @@ on:
       DOCKERHUB_USERNAME: { required: true}
       DOCKERHUB_TOKEN: { required: true}
 
+env:
+  DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+
 jobs:
   build_images:
     name: PHP ${{ matrix.version }}

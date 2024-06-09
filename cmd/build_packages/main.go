@@ -4,16 +4,20 @@ import (
 	"context"
 	"dagger.io/dagger"
 	"errors"
+	"fmt"
 	"log"
 	"main/internal/pkg/build"
 	"os"
 )
 
 func main() {
-	os.Exit(RunBuild())
+	err := RunBuild()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-func RunBuild() int {
+func RunBuild() error {
 	// Parse command arguments to capture build information
 	buildParameters := build.ParseArguments()
 
@@ -25,31 +29,31 @@ func RunBuild() int {
 	container, err := buildOutput(buildParameters, ctx, client)
 
 	if err != nil {
-		log.Println(err)
+		return fmt.Errorf("failed to build packages: %w", err)
 	}
 
-	return ExportArtifacts(buildParameters, ctx, container)
+	if err := ExportArtifacts(buildParameters, ctx, container); err != nil {
+		return fmt.Errorf("failed to export packages: %w", err)
+	}
+
+	return nil
 }
 
-func ExportArtifacts(buildParameters *build.BuildParameters, ctx context.Context, container *dagger.Container) int {
+func ExportArtifacts(buildParameters *build.BuildParameters, ctx context.Context, container *dagger.Container) error {
 	// Create the output directory if it does not exist
 	if _, err := os.Stat(buildParameters.OutputDirectoryPath); errors.Is(err, os.ErrNotExist) {
 		log.Println("Creating export output directory: " + buildParameters.OutputDirectoryPath)
 		if err = os.MkdirAll(buildParameters.OutputDirectoryPath, 0755); err != nil {
-			log.Println("Failed to create export output directory")
-			log.Println(err)
-			return 1
+			return fmt.Errorf("failed to create export output directory: %w", err)
 		}
 	}
 
 	// Export debian package files
-	exitCode := 0
 	directory := container.Directory(buildParameters.BuildDirectoryRootPath)
 	files, err := directory.Glob(ctx, "**.deb")
 
 	if err != nil {
-		log.Println("Encountered error whilst globbing files for export")
-		exitCode = 1
+		return fmt.Errorf("encountered error whilst globbing files for export: %w", err)
 	} else if len(files) > 0 {
 		log.Println("Exporting files:")
 
@@ -62,13 +66,12 @@ func ExportArtifacts(buildParameters *build.BuildParameters, ctx context.Context
 				Export(ctx, buildParameters.OutputDirectoryPath, dagger.FileExportOpts{AllowParentDirPath: true})
 
 			if err != nil {
-				log.Println(err)
-				exitCode = 1
+				return fmt.Errorf("failed to export file: %w", err)
 			}
 		}
 	} else {
 		log.Println("No matching files to export")
 	}
 
-	return exitCode
+	return nil
 }
