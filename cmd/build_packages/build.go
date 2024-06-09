@@ -14,7 +14,7 @@ func buildOutput(buildParameters *build.BuildParameters, ctx context.Context, cl
 	var container *dagger.Container
 
 	// Download source archive
-	sourceArchiveFileName, err := downloadSourceArchive(buildParameters)
+	sourceArchiveFileName, err := build.DownloadSourceArchive(buildParameters)
 
 	if err != nil {
 		return container, err
