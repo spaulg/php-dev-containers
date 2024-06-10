@@ -6,14 +6,12 @@ Subject: Amend C++11 for intl compilation on older distributions
  ext/intl/config.m4 | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/ext/intl/config.m4 b/ext/intl/config.m4
-index dd687bc..7cf5098 100644
 --- a/ext/intl/config.m4
 +++ b/ext/intl/config.m4
-@@ -81,7 +81,7 @@ if test "$PHP_INTL" != "no"; then
+@@ -90,7 +90,7 @@
+     PHP_CXX_COMPILE_STDCXX(11, mandatory, PHP_INTL_STDCXX)
+   ])
  
-   PHP_REQUIRE_CXX()
-   PHP_CXX_COMPILE_STDCXX(11, mandatory, PHP_INTL_STDCXX)
 -  PHP_INTL_CXX_FLAGS="$INTL_COMMON_FLAGS $PHP_INTL_STDCXX $ICU_CXXFLAGS"
 +  PHP_INTL_CXX_FLAGS="$INTL_COMMON_FLAGS $PHP_INTL_STDCXX $ICU_CXXFLAGS -std=c++11"
    case $host_alias in
