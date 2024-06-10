@@ -1,10 +1,9 @@
 Package: @package@
 Architecture: any
-Depends: php-common (>= 1:81~),
-         ucf,
+Depends: ucf,
          ${misc:Depends},
          ${php:Depends},
-	 ${php-@ext@:Depends},
+	     ${php-@ext@:Depends},
          ${shlibs:Depends}
 Pre-Depends: ${misc:Pre-Depends},
 	     ${php-@ext@:Pre-Depends}
