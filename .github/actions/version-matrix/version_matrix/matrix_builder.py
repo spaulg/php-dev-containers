@@ -59,7 +59,6 @@ def _check_version(version_number: str, matrix: dict, failures: list, username: 
     """
 
     minimum_age = datetime.datetime.now() - datetime.timedelta(days=constant.MAX_AGE_IN_DAYS)
-    epoch = str(int(datetime.datetime.now().timestamp()))
 
     try:
         version_metadata = release_versions.fetch_version_metadata(version_number)
@@ -76,58 +75,47 @@ def _check_version(version_number: str, matrix: dict, failures: list, username: 
                     logging.info("Appending %s to build list", version_number)
 
                     _append_version(
-                        version_number,
                         version_metadata,
                         matrix,
-                        epoch,
                     )
 
                     return
         else:
             # Version missing in docker, add for first build
             _append_version(
-                version_number,
                 version_metadata,
                 matrix,
-                epoch,
             )
 
     except Exception:
         failures.append(version_number)
 
 
-def _append_version(version_number: str, version_metadata: dict, matrix: dict, epoch: str):
+def _append_version(version_metadata: dict, matrix: dict):
     """
     Append both the nts and zts versions of a particular version to the version matrix
 
-    :param version_number:
     :param version_metadata:
     :param matrix:
-    :param epoch:
     :return:
     """
 
     _append_version_entry(
-        version_number,
         version_metadata,
         matrix,
-        epoch,
     )
 
     _append_version_entry(
-        version_number,
         version_metadata,
         matrix,
-        epoch,
         "zts",
     )
 
 
-def _append_version_entry(version_number: str, version_metadata: dict, matrix: dict, epoch: str, suffix: str = None):
+def _append_version_entry(version_metadata: dict, matrix: dict, suffix: str = None):
     """
     Append the desired version to the version matrix with the optional suffix
 
-    :param version_number:
     :param version_metadata:
     :param matrix:
     :param epoch:
@@ -138,22 +126,9 @@ def _append_version_entry(version_number: str, version_metadata: dict, matrix: d
     hyphenated_suffix = ""
     if suffix is not None:
         hyphenated_suffix = "-" + suffix
-    else:
-        suffix = ""
 
-    matrix["version"].append(version_number + hyphenated_suffix)
+    matrix["short_version"].append(version_metadata["short_version"] + hyphenated_suffix)
     matrix["include"].append({
-        "version": version_number + hyphenated_suffix,
-        "suffix": suffix,
-        "package_name": "php" + version_metadata["short_version"] + hyphenated_suffix,
-        "package_version": version_metadata["full_version"] + suffix,
-        "package_upstream_filename": "php" + version_metadata["short_version"] + suffix + "_" +
-                                     version_metadata["full_version"] + ".orig.tar.gz",
-        "dsc_filename": "php" + version_metadata["short_version"] + suffix + "_" +
-                        version_metadata["full_version"] + "-" + epoch + ".dsc",
-        "full_package_version": version_metadata["full_version"] + "-" + epoch,
-        "short_version": version_metadata["short_version"],
-        "full_version": version_metadata["full_version"],
-        "asset_url": version_metadata["asset_url"],
-        "asset_filename": version_metadata["asset_filename"],
+        "short_version": version_metadata["short_version"] + hyphenated_suffix,
+        "full_version": version_metadata["full_version"] + hyphenated_suffix,
     })
