@@ -2,15 +2,14 @@ package main
 
 import (
 	"context"
-	"dagger.io/dagger"
 	"fmt"
 	"github.com/dchest/uniuri"
 	"log"
 	"strconv"
 )
 
-func (m *PhpDevContainers) buildPackages(ctx context.Context, client *dagger.Client) (*dagger.Container, error) {
-	var container *dagger.Container
+func (m *PhpDevContainers) buildPackages(ctx context.Context) (*Container, error) {
+	var container *Container
 
 	// Download source archive
 	sourceArchiveFileName, err := m.downloadSourceArchive()
@@ -20,8 +19,8 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context, client *dagger.Cli
 	}
 
 	// Start container
-	container, err = client.Container().
-		From(buildParameters.BuildContainerImage).
+	container, err = dag.Container().
+		From(m.BuildContainerImage).
 		Sync(ctx)
 
 	if err != nil {
@@ -29,7 +28,7 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context, client *dagger.Cli
 	}
 
 	// Bust cache if required
-	if buildParameters.NoCache {
+	if m.NoCache {
 		container, err = container.
 			WithEnvVariable("BURST_CACHE", uniuri.New()).
 			Sync(ctx)
@@ -38,11 +37,12 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context, client *dagger.Cli
 			return container, err
 		}
 	}
+	dag.Directory()
 
 	container, err = container.
-		WithDirectory("/home/build/source", client.Host().Directory("assets/source")).
-		WithExec([]string{"mkdir", "-p", buildParameters.BuildDirectoryPath}).
-		WithWorkdir(buildParameters.BuildDirectoryPath).
+		WithDirectory("/home/build/source", m.SourceDirectory).
+		WithExec([]string{"mkdir", "-p", m.BuildDirectoryPath}).
+		WithWorkdir(m.BuildDirectoryPath).
 		Sync(ctx)
 
 	if err != nil {
@@ -51,15 +51,15 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context, client *dagger.Cli
 
 	// Prepare package
 	container, err = container.
-		WithExec([]string{"cp", "/home/build/source/" + sourceArchiveFileName, buildParameters.BuildDirectoryRootPath + "/" + sourceArchiveFileName}).
-		WithExec([]string{"tar", "-xzf", buildParameters.BuildDirectoryRootPath + "/" + sourceArchiveFileName, "--strip-components=1", "--exclude", "debian"}).
-		WithExec([]string{"cp", "-R", "/home/build/source/" + buildParameters.ShortVersion, buildParameters.BuildDirectoryPath + "/debian"}).
+		WithExec([]string{"cp", "/home/build/source/" + sourceArchiveFileName, m.BuildDirectoryRootPath + "/" + sourceArchiveFileName}).
+		WithExec([]string{"tar", "-xzf", m.BuildDirectoryRootPath + "/" + sourceArchiveFileName, "--strip-components=1", "--exclude", "debian"}).
+		WithExec([]string{"cp", "-R", "/home/build/source/" + m.ShortVersion, m.BuildDirectoryPath + "/debian"}).
 		WithExec([]string{"rm", "-f", "debian/changelog"}).
-		WithExec([]string{"debchange", "--create", "--package", buildParameters.PackageName, "--distribution", "stable", "-v", m.Version + "-" + strconv.Itoa(buildParameters.BuildNumber), m.Version + "-" + strconv.Itoa(buildParameters.BuildNumber) + " automated build"}).
+		WithExec([]string{"debchange", "--create", "--package", m.PackageName, "--distribution", "stable", "-v", m.Version + "-" + strconv.Itoa(m.BuildNumber), m.Version + "-" + strconv.Itoa(m.BuildNumber) + " automated build"}).
 		WithExec([]string{"make", "-f", "debian/rules", "prepare"}).
-		WithExec([]string{"sudo", "dpkg", "--add-architecture", buildParameters.TargetArchitecture}).
+		WithExec([]string{"sudo", "dpkg", "--add-architecture", m.TargetArchitecture}).
 		WithExec([]string{"sudo", "apt", "update", "-y"}).
-		WithExec([]string{"sudo", "mk-build-deps", "-i", "-t", "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y", "--host-arch", buildParameters.TargetArchitecture}).
+		WithExec([]string{"sudo", "mk-build-deps", "-i", "-t", "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y", "--host-arch", m.TargetArchitecture}).
 		Sync(ctx)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context, client *dagger.Cli
 	}
 
 	// Clean mk-build-deps files and delete
-	buildDirectory := container.Directory(buildParameters.BuildDirectoryPath)
+	buildDirectory := container.Directory(m.BuildDirectoryPath)
 	var removeFiles []string
 
 	for _, globPattern := range []string{"**.deb", "**.changes", "**.buildinfo"} {
@@ -78,7 +78,7 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context, client *dagger.Cli
 		}
 
 		for _, file := range globFiles {
-			file = buildParameters.BuildDirectoryPath + "/" + file
+			file = m.BuildDirectoryPath + "/" + file
 
 			log.Println("Removing file: " + file)
 			removeFiles = append(removeFiles, file)
@@ -97,6 +97,6 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context, client *dagger.Cli
 
 	// Final build
 	return container.
-		WithExec([]string{"debuild", "-us", "-uc", "-a" + buildParameters.TargetArchitecture}).
+		WithExec([]string{"debuild", "-us", "-uc", "-a" + m.TargetArchitecture}).
 		Sync(ctx)
 }

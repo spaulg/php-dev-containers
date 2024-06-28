@@ -177,7 +177,7 @@ func ParseArguments() *BuildParameters {
 	log.Println("TargetBuildContainerImageRepository: " + buildParameters.TargetBuildContainerImageRepository)
 	log.Println("TargetBuildContainerImageTag: " + buildParameters.TargetBuildContainerImageTag)
 
-	log.Println("OutputDirectoryPath: " + buildParameters.OutputDirectoryPath)
+	log.Println("OutputDirectory: " + buildParameters.OutputDirectoryPath)
 
 	return &buildParameters
 }
