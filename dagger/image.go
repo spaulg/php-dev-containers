@@ -9,8 +9,8 @@ func (m *PhpDevContainers) buildImage(ctx context.Context) (*Container, error) {
 	var container *Container
 
 	// Start container
-	container, err := dag.Container(ContainerOpts{Platform: m.TargetBuildContainerPlatform}).
-		From(m.TargetBaseContainerImage).
+	container, err := dag.Container(ContainerOpts{Platform: m.targetBuildContainerPlatform}).
+		From(m.targetBaseContainerImage).
 		Sync(ctx)
 
 	if err != nil {
@@ -18,7 +18,7 @@ func (m *PhpDevContainers) buildImage(ctx context.Context) (*Container, error) {
 	}
 
 	// Bust cache if required
-	if m.NoCache {
+	if m.noCache {
 		container, err = container.
 			WithEnvVariable("BURST_CACHE", uniuri.New()).
 			Sync(ctx)
@@ -29,7 +29,7 @@ func (m *PhpDevContainers) buildImage(ctx context.Context) (*Container, error) {
 	}
 
 	container, err = container.
-		WithDirectory("/packages", m.OutputDirectory).
+		WithDirectory("/packages", m.outputDirectory).
 		WithExec([]string{"apt", "update", "-y"}).
 		Sync(ctx)
 
@@ -55,7 +55,7 @@ func (m *PhpDevContainers) buildImage(ctx context.Context) (*Container, error) {
 	}
 
 	// Export container image by either saving locally or pushing to registry
-	_, err = container.Publish(ctx, m.TargetBuildContainerImageRepository+":"+m.TargetBuildContainerImageTag)
+	_, err = container.Publish(ctx, m.targetBuildContainerImageRepository+":"+m.targetBuildContainerImageTag)
 	if err != nil {
 		return container, err
 	}

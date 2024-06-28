@@ -22,7 +22,7 @@ type PhpVersion struct {
 }
 
 func (m *PhpDevContainers) downloadSourceArchive() (string, error) {
-	sourceArchiveName := fmt.Sprintf("%s_%s.orig.tar.gz", m.PackageName, m.Version)
+	sourceArchiveName := fmt.Sprintf("%s_%s.orig.tar.gz", m.packageName, m.version)
 
 	_, err := os.Stat("assets/source/" + sourceArchiveName)
 	if err != nil {
@@ -63,7 +63,7 @@ func (m *PhpDevContainers) downloadSourceArchive() (string, error) {
 
 func (m *PhpDevContainers) resolveDownloadUrl() (string, error) {
 	// Fetch release metadata
-	resp, err := http.Get("https://www.php.net/releases/index.php?json&version=" + m.Version)
+	resp, err := http.Get("https://www.php.net/releases/index.php?json&version=" + m.version)
 	if err != nil {
 		return "", fmt.Errorf("unable to request PHP release metadata: %v", err)
 	}
@@ -86,7 +86,7 @@ func (m *PhpDevContainers) resolveDownloadUrl() (string, error) {
 	for _, file := range data.Source {
 		if strings.HasSuffix(file.Filename, ".tar.gz") {
 			if data.Museum {
-				return "https://museum.php.net/php" + m.MajorVersion + "/" + file.Filename, nil // museum
+				return "https://museum.php.net/php" + m.majorVersion + "/" + file.Filename, nil // museum
 			} else {
 				return "https://www.php.net/distributions/" + file.Filename, nil // latest
 			}
@@ -94,5 +94,5 @@ func (m *PhpDevContainers) resolveDownloadUrl() (string, error) {
 	}
 
 	// Not found
-	return "", fmt.Errorf("PHP version %v not found", m.Version)
+	return "", fmt.Errorf("PHP version %v not found", m.version)
 }

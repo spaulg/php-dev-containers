@@ -20,7 +20,7 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context) (*Container, error
 
 	// Start container
 	container, err = dag.Container().
-		From(m.BuildContainerImage).
+		From(m.buildContainerImage).
 		Sync(ctx)
 
 	if err != nil {
@@ -28,7 +28,7 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context) (*Container, error
 	}
 
 	// Bust cache if required
-	if m.NoCache {
+	if m.noCache {
 		container, err = container.
 			WithEnvVariable("BURST_CACHE", uniuri.New()).
 			Sync(ctx)
@@ -40,9 +40,9 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context) (*Container, error
 	dag.Directory()
 
 	container, err = container.
-		WithDirectory("/home/build/source", m.SourceDirectory).
-		WithExec([]string{"mkdir", "-p", m.BuildDirectoryPath}).
-		WithWorkdir(m.BuildDirectoryPath).
+		WithDirectory("/home/build/source", m.sourceDirectory).
+		WithExec([]string{"mkdir", "-p", m.buildDirectoryPath}).
+		WithWorkdir(m.buildDirectoryPath).
 		Sync(ctx)
 
 	if err != nil {
@@ -51,15 +51,15 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context) (*Container, error
 
 	// Prepare package
 	container, err = container.
-		WithExec([]string{"cp", "/home/build/source/" + sourceArchiveFileName, m.BuildDirectoryRootPath + "/" + sourceArchiveFileName}).
-		WithExec([]string{"tar", "-xzf", m.BuildDirectoryRootPath + "/" + sourceArchiveFileName, "--strip-components=1", "--exclude", "debian"}).
-		WithExec([]string{"cp", "-R", "/home/build/source/" + m.ShortVersion, m.BuildDirectoryPath + "/debian"}).
+		WithExec([]string{"cp", "/home/build/source/" + sourceArchiveFileName, m.buildDirectoryRootPath + "/" + sourceArchiveFileName}).
+		WithExec([]string{"tar", "-xzf", m.buildDirectoryRootPath + "/" + sourceArchiveFileName, "--strip-components=1", "--exclude", "debian"}).
+		WithExec([]string{"cp", "-R", "/home/build/source/" + m.shortVersion, m.buildDirectoryPath + "/debian"}).
 		WithExec([]string{"rm", "-f", "debian/changelog"}).
-		WithExec([]string{"debchange", "--create", "--package", m.PackageName, "--distribution", "stable", "-v", m.Version + "-" + strconv.Itoa(m.BuildNumber), m.Version + "-" + strconv.Itoa(m.BuildNumber) + " automated build"}).
+		WithExec([]string{"debchange", "--create", "--package", m.packageName, "--distribution", "stable", "-v", m.version + "-" + strconv.Itoa(m.buildNumber), m.version + "-" + strconv.Itoa(m.buildNumber) + " automated build"}).
 		WithExec([]string{"make", "-f", "debian/rules", "prepare"}).
-		WithExec([]string{"sudo", "dpkg", "--add-architecture", m.TargetArchitecture}).
+		WithExec([]string{"sudo", "dpkg", "--add-architecture", m.targetArchitecture}).
 		WithExec([]string{"sudo", "apt", "update", "-y"}).
-		WithExec([]string{"sudo", "mk-build-deps", "-i", "-t", "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y", "--host-arch", m.TargetArchitecture}).
+		WithExec([]string{"sudo", "mk-build-deps", "-i", "-t", "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y", "--host-arch", m.targetArchitecture}).
 		Sync(ctx)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context) (*Container, error
 	}
 
 	// Clean mk-build-deps files and delete
-	buildDirectory := container.Directory(m.BuildDirectoryPath)
+	buildDirectory := container.Directory(m.buildDirectoryPath)
 	var removeFiles []string
 
 	for _, globPattern := range []string{"**.deb", "**.changes", "**.buildinfo"} {
@@ -78,7 +78,7 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context) (*Container, error
 		}
 
 		for _, file := range globFiles {
-			file = m.BuildDirectoryPath + "/" + file
+			file = m.buildDirectoryPath + "/" + file
 
 			log.Println("Removing file: " + file)
 			removeFiles = append(removeFiles, file)
@@ -97,6 +97,6 @@ func (m *PhpDevContainers) buildPackages(ctx context.Context) (*Container, error
 
 	// Final build
 	return container.
-		WithExec([]string{"debuild", "-us", "-uc", "-a" + m.TargetArchitecture}).
+		WithExec([]string{"debuild", "-us", "-uc", "-a" + m.targetArchitecture}).
 		Sync(ctx)
 }
