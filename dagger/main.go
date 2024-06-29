@@ -4,38 +4,84 @@ import (
 	"context"
 	"fmt"
 	"github.com/Masterminds/semver"
-	"log"
 	"runtime"
 	"unicode"
 )
 
 type PhpDevContainers struct {
-	version      string // The major.minor.patch formatted version to build
-	shortVersion string // The major.minor formatted version to build
-	majorVersion string // The major version to build
-	minorVersion string // The minor version to build
-	patchVersion string // Patch version to build
-	suffix       string // suffix to include in package name
-	//	Architectures []string // Array of architectures to build
-	packageName  string // Package name to build
-	distribution string
-	buildNumber  int
+	// The major.minor.patch formatted Version to build
+	// +private
+	Version string
 
-	sourceDirectory *Directory
+	// The major.minor formatted Version to build
+	// +private
+	ShortVersion string
 
-	buildContainerImage    string
-	buildDirectoryName     string
-	buildDirectoryPath     string
-	buildDirectoryRootPath string
+	// The major Version to build
+	// +private
+	MajorVersion string
 
-	targetBaseContainerImage            string
-	targetBuildContainerImageRepository string
-	targetBuildContainerImageTag        string
-	targetBuildContainerPlatform        Platform
-	targetArchitecture                  string
+	// The minor Version to build
+	// +private
+	MinorVersion string
 
-	noCache         bool
-	outputDirectory *Directory
+	// Patch Version to build
+	// +private
+	PatchVersion string
+
+	// Suffix to include in package name
+	// +private
+	Suffix string
+
+	// Array of architectures to build
+	// +private
+	//	Architectures []string
+
+	// Package name to build
+	// +private
+	PackageName string
+
+	// +private
+	Distribution string
+
+	// +private
+	BuildNumber int
+
+	// +private
+	SourceDirectory *Directory
+
+	// +private
+	BuildContainerImage string
+
+	// +private
+	BuildDirectoryName string
+
+	// +private
+	BuildDirectoryPath string
+
+	// +private
+	BuildDirectoryRootPath string
+
+	// +private
+	TargetBaseContainerImage string
+
+	// +private
+	TargetBuildContainerImageRepository string
+
+	// +private
+	TargetBuildContainerImageTag string
+
+	// +private
+	TargetBuildContainerPlatform Platform
+
+	// +private
+	TargetArchitecture string
+
+	// +private
+	NoCache bool
+
+	// +private
+	OutputDirectory *Directory
 }
 
 const defaultDistribution = "bullseye"
@@ -47,52 +93,41 @@ const packagePrefix = "php"
 const packageDirectoryBase = "/home/build/packages"
 const outputDirectoryBase = "assets/packages"
 
-func New() *PhpDevContainers {
-	return &PhpDevContainers{
-		targetArchitecture:                  runtime.GOARCH,
-		distribution:                        defaultDistribution,
-		buildNumber:                         defaultBuildNumber,
-		buildDirectoryRootPath:              packageDirectoryBase,
-		targetBuildContainerImageRepository: targetBuildContainerImageRepository,
-	}
-}
-
-func (m *PhpDevContainers) WithPhpVersion(version string) (*PhpDevContainers, error) {
+func New(version string, sourceDirectory *Directory, outputDirectory *Directory) (*PhpDevContainers, error) {
 	semanticVersion, err := semver.NewVersion(version)
 	if err != nil {
-		return m, fmt.Errorf("argument --version is not a valid semantic version: %v", err)
+		return nil, fmt.Errorf("argument --Version is not a valid semantic Version: %v", err)
 	}
 
-	m.version = fmt.Sprintf("%d.%d.%d", semanticVersion.Major(), semanticVersion.Minor(), semanticVersion.Patch())
-	m.shortVersion = fmt.Sprintf("%d.%d", semanticVersion.Major(), semanticVersion.Minor())
-	m.majorVersion = fmt.Sprintf("%d", semanticVersion.Major())
-	m.minorVersion = fmt.Sprintf("%d", semanticVersion.Minor())
-	m.patchVersion = fmt.Sprintf("%d", semanticVersion.Patch())
+	return &PhpDevContainers{
+		TargetArchitecture:                  runtime.GOARCH,
+		Distribution:                        defaultDistribution,
+		BuildNumber:                         defaultBuildNumber,
+		BuildDirectoryRootPath:              packageDirectoryBase,
+		TargetBuildContainerImageRepository: targetBuildContainerImageRepository,
 
-	return m, nil
+		Version:      fmt.Sprintf("%d.%d.%d", semanticVersion.Major(), semanticVersion.Minor(), semanticVersion.Patch()),
+		ShortVersion: fmt.Sprintf("%d.%d", semanticVersion.Major(), semanticVersion.Minor()),
+		MajorVersion: fmt.Sprintf("%d", semanticVersion.Major()),
+		MinorVersion: fmt.Sprintf("%d", semanticVersion.Minor()),
+		PatchVersion: fmt.Sprintf("%d", semanticVersion.Patch()),
+
+		SourceDirectory: sourceDirectory,
+		OutputDirectory: outputDirectory,
+	}, nil
 }
 
 func (m *PhpDevContainers) WithPhpSuffix(suffix string) (*PhpDevContainers, error) {
 	if suffix != "" {
 		for _, r := range suffix {
 			if !unicode.IsDigit(r) && !unicode.IsLetter(r) {
-				return m, fmt.Errorf("suffix must be alphanumeric")
+				return m, fmt.Errorf("Suffix must be alphanumeric")
 			}
 		}
 	}
 
-	m.suffix = "-" + suffix
+	m.Suffix = "-" + suffix
 	return m, nil
-}
-
-func (m *PhpDevContainers) WithSourceDirectory(sourceDirectory *Directory) *PhpDevContainers {
-	m.sourceDirectory = sourceDirectory
-	return m
-}
-
-func (m *PhpDevContainers) WithOutputDirectory(outputDirectory *Directory) *PhpDevContainers {
-	m.outputDirectory = outputDirectory
-	return m
 }
 
 //func (m *PhpDevContainers) WithPhpArchitectures(architectures string) *PhpDevContainers {
@@ -101,26 +136,23 @@ func (m *PhpDevContainers) WithOutputDirectory(outputDirectory *Directory) *PhpD
 //}
 
 func (m *PhpDevContainers) BuildPhpImage(ctx context.Context) (*Container, error) {
-	// todo: validate that version, suffix, architectures have all been set
+	// todo: validate that Version, Suffix, architectures have all been set
 
-	m.packageName = packagePrefix + m.shortVersion + m.suffix
+	m.PackageName = packagePrefix + m.ShortVersion + m.Suffix
 
 	// Complete derived fields
-	m.buildContainerImage = buildContainerImageRepository + ":" + m.distribution
-	m.buildDirectoryName = m.packageName + "_" + m.version
-	m.buildDirectoryPath = m.buildDirectoryRootPath + "/" + m.buildDirectoryName
-	m.targetBaseContainerImage = targetBaseContainerImageRepository + ":" + m.distribution
+	m.BuildContainerImage = buildContainerImageRepository + ":" + m.Distribution
+	m.BuildDirectoryName = m.PackageName + "_" + m.Version
+	m.BuildDirectoryPath = m.BuildDirectoryRootPath + "/" + m.BuildDirectoryName
+	m.TargetBaseContainerImage = targetBaseContainerImageRepository + ":" + m.Distribution
 
-	m.targetBuildContainerImageRepository = targetBuildContainerImageRepository
-	m.targetBuildContainerImageTag = m.packageName + "-" + m.targetArchitecture
+	m.TargetBuildContainerImageRepository = targetBuildContainerImageRepository
+	m.TargetBuildContainerImageTag = m.PackageName + "-" + m.TargetArchitecture
 
 	var err error
-	if m.targetBuildContainerPlatform, err = mapContainerPlatform(m.targetArchitecture); err != nil {
-		log.Fatal(err)
+	if m.TargetBuildContainerPlatform, err = mapContainerPlatform(m.TargetArchitecture); err != nil {
+		return nil, err
 	}
-
-	client := ConnectDaggerClient(ctx)
-	defer client.Close()
 
 	container, err := m.buildPackages(ctx)
 	if err != nil {
@@ -137,6 +169,6 @@ func mapContainerPlatform(targetPlatform string) (Platform, error) {
 	case "arm64":
 		return "linux/arm64", nil
 	default:
-		return "", fmt.Errorf("unsupport platform")
+		return "", fmt.Errorf("unsupported platform: %v", targetPlatform)
 	}
 }
