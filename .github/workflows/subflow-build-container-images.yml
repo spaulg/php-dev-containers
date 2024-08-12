@@ -23,7 +23,7 @@ env:
 
 jobs:
   build_images:
-    name: PHP ${{ matrix.version }}
+    name: PHP ${{ matrix.short_version }}
     runs-on: ubuntu-22.04
     timeout-minutes: 120
 
@@ -50,49 +50,37 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build amd64 packages
+      - name: Ensure work directory exists
         shell: bash
         run: |
-          dagger run go run cmd/build_packages/*.go \
-            --version=${{ matrix.full_version }} \
-            --suffix=${{ matrix.suffix }} \
-            --architecture=amd64 \
-            2>&1 | tee build-package.amd64.log
+          mkdir -p work
 
-      - name: Build amd64 images
+      - name: Downloading PHP source
         shell: bash
         run: |
-          dagger run go run cmd/build_images/*.go \
-            --version=${{ matrix.full_version }} \
-            --suffix=${{ matrix.suffix }} \
-            --architecture=amd64 \
-            2>&1 | tee build-image.amd64.log
+          dagger call --version ${{ matrix.full_version }} \
+            download-php-source \
+            export --path work --allow-parent-dir-path
 
-      - name: Build arm64 packages
+      - name: Build packages
         shell: bash
         run: |
-          dagger run go run cmd/build_packages/*.go \
-            --version=${{ matrix.full_version }} \
-            --suffix=${{ matrix.suffix }} \
-            --architecture=arm64 \
-            2>&1 | tee build-package.arm64.log
+          dagger call --version ${{ matrix.full_version }} \
+            build-php-packages --source-archive work/${{ matrix.full_version }}_*.orig.tar.gz \
+            export --path work/${{ matrix.full_version }}
 
-      - name: Build amd64 images
+      - name: Build images
         shell: bash
         run: |
-          dagger run go run cmd/build_images/*.go \
-            --version=${{ matrix.full_version }} \
-            --suffix=${{ matrix.suffix }} \
-            --architecture=arm64 \
-            2>&1 | tee build-image.amd64.log
+          dagger call --version ${{ matrix.full_version }} \
+            build-php-image --package-directory assets/packages/ \
+            publish --registry index.docker.io/spaulg/php-dev-containers
 
-      - name: Save files to build
+      - name: Save deb files to build
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-package-${{ matrix.version }}
+          name: php-${{ matrix.short_version }}
           if-no-files-found: ignore
           path: |
-            *.log
-            assets/packages/${{ matrix.package_name }}_${{ matrix.full_version }}-amd64/*.deb
-            assets/packages/${{ matrix.package_name }}_${{ matrix.full_version }}-arm64/*.deb
+            assets/packages/*.deb
