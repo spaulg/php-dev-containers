@@ -20,7 +20,7 @@ def build_matrix(username: str, password: str, repository: str) -> dict:
     """
 
     threads = []
-    matrix = {"version": [], "include": []}
+    matrix = {"short_version": [], "include": []}
     failures = []
 
     for version in release_versions.list_all_versions():
@@ -40,7 +40,7 @@ def build_matrix(username: str, password: str, repository: str) -> dict:
         thread.join()
 
     # Sort versions
-    matrix["version"].sort()
+    matrix["short_version"].sort()
 
     return matrix
 
