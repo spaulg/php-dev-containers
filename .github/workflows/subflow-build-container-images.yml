@@ -75,7 +75,7 @@ jobs:
         run: |
           dagger call --version ${{ matrix.full_version }} \
             build-php-image --package-directory "work/${{ matrix.full_version }}" \
-            publish --address index.docker.io/spaulg/php-dev-containers:${{ matrix.full_version }}-amd64
+            publish --address index.docker.io/spaulg/php-dev-containers:${{ matrix.short_version }}-amd64
 
       - name: Save deb files to build
         if: always()
