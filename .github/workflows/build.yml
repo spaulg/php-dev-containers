@@ -1,4 +1,4 @@
-name: 'Refresh PHP development containers'
+name: 'Rebuild PHP development containers'
 
 on:
   push:
@@ -27,3 +27,4 @@ jobs:
     secrets: inherit
     with:
       matrix: ${{ needs.version_matrix.outputs.matrix }}
+      push: ${{ github.ref_name == 'master' }}

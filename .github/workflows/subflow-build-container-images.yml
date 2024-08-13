@@ -71,12 +71,20 @@ jobs:
             build-php-packages --source-archive "work/${{ matrix.full_version }}.orig.tar.gz" \
             export --path "work/${{ matrix.full_version }}"
 
-      - name: Build images
+      - name: Build and push container image
+        if: ${{ inputs.push }}
         shell: bash
         run: |
           dagger call --version ${{ matrix.full_version }} \
             build-php-image --package-directory "work/${{ matrix.full_version }}" \
             publish --address index.docker.io/spaulg/php-dev-containers:${{ matrix.short_version }}-amd64
+
+      - name: Build container image
+        if: ${{ ! inputs.push }}
+        shell: bash
+        run: |
+          dagger call --version ${{ matrix.full_version }} \
+            build-php-image --package-directory "work/${{ matrix.full_version }}"
 
       - name: Save deb files to build
         if: always()
