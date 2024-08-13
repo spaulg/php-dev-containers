@@ -60,14 +60,14 @@ jobs:
         run: |
           dagger call --version ${{ matrix.full_version }} \
             download-php-source \
-            export --path work --allow-parent-dir-path
+            export --path "work/${{ matrix.full_version }}.orig.tar.gz"
 
       - name: Build packages
         shell: bash
         run: |
           dagger call --version ${{ matrix.full_version }} \
-            build-php-packages --source-archive work/${{ matrix.full_version }}_*.orig.tar.gz \
-            export --path work/${{ matrix.full_version }}
+            build-php-packages --source-archive "work/${{ matrix.full_version }}.orig.tar.gz" \
+            export --path "work/${{ matrix.full_version }}"
 
       - name: Build images
         shell: bash
