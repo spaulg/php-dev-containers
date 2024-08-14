@@ -29,7 +29,7 @@ func (m *PhpDevContainers) BuildPhpPackages(ctx context.Context, sourceArchive *
 
 	// Start container
 	container, err = dag.Container().
-		From(m.BuildContainerImage).
+		From("docker.io/debian:bullseye").
 		Sync(ctx)
 
 	if err != nil {
@@ -46,8 +46,25 @@ func (m *PhpDevContainers) BuildPhpPackages(ctx context.Context, sourceArchive *
 			return nil, err
 		}
 	}
-	dag.Directory()
 
+	// Prepare build environment
+	container, err = container.
+		//WithExec([]string{"dpkg", "--add-architecture", runtime.GOARCH}).
+		WithExec([]string{"apt", "update", "-y"}).
+		WithExec([]string{"apt", "install", "-y", "build-essential", "devscripts", "quilt", "git", "sudo"}).
+		WithExec([]string{"sh", "-c", "echo \"Cmnd_Alias MK_BUILD_DEPS=/usr/bin/mk-build-deps * \" >> /etc/sudoers.d/build"}).
+		WithExec([]string{"sh", "-c", "echo \"build ALL=(ALL) NOPASSWD:MK_BUILD_DEPS\" >> /etc/sudoers.d/build"}).
+		WithExec([]string{"useradd", "-s", "/bin/bash", "-d", "/home/build", "-m", "-U", "build"}).
+		WithWorkdir("/home/build").
+		WithUser("build").
+		WithExec([]string{"mkdir", "-p", "/home/build/packages"}).
+		Sync(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Mount source/package files
 	container, err = container.
 		WithDirectory("/home/build/source", dag.CurrentModule().Source().Directory("assets/source/")).
 		WithFile("/home/build/source/"+sourceArchiveFileName, sourceArchive).
@@ -67,8 +84,6 @@ func (m *PhpDevContainers) BuildPhpPackages(ctx context.Context, sourceArchive *
 		WithExec([]string{"rm", "-f", "debian/changelog"}).
 		WithExec([]string{"debchange", "--create", "--package", m.PackageName, "--Distribution", "stable", "-v", m.Version + "-" + strconv.Itoa(m.BuildNumber), m.Version + "-" + strconv.Itoa(m.BuildNumber) + " automated build"}).
 		WithExec([]string{"make", "-f", "debian/rules", "prepare"}).
-		WithExec([]string{"sudo", "dpkg", "--add-architecture", runtime.GOARCH}).
-		WithExec([]string{"sudo", "apt", "update", "-y"}).
 		WithExec([]string{"sudo", "mk-build-deps", "-i", "-t", "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y", "--host-arch", runtime.GOARCH}).
 		Sync(ctx)
 
