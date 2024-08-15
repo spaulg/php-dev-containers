@@ -5,6 +5,7 @@ import (
 	"dagger/phpdevcontainers/internal/dagger"
 	"encoding/json"
 	"fmt"
+	"github.com/dchest/uniuri"
 	"io"
 	"net/http"
 	"strings"
@@ -20,6 +21,24 @@ func (m *PhpDevContainers) DownloadPhpSource(ctx context.Context) (*dagger.File,
 
 	container, err := dag.Container().
 		From("debian:bullseye").
+		Sync(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to download source archive: %v", err)
+	}
+
+	// Bust cache if required
+	if m.NoCache {
+		container, err = container.
+			WithEnvVariable("BURST_CACHE", uniuri.New()).
+			Sync(ctx)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	container, err = container.
 		WithExec([]string{"apt", "update", "-y"}).
 		WithExec([]string{"apt", "install", "-y", "curl"}).
 		WithExec([]string{"curl", "-fsSL", sourceUrl, "-o", sourceArchiveName}).

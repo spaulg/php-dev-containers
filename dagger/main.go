@@ -57,7 +57,14 @@ const defaultBuildNumber = 1
 const packagePrefix = "php"
 const packageDirectoryBase = "/home/build/packages"
 
-func New(version string) (*PhpDevContainers, error) {
+func New(
+	// Version to build
+	version string,
+
+	// Burst cache
+	// +optional
+	burstCache bool,
+) (*PhpDevContainers, error) {
 	semanticVersion, err := semver.NewVersion(version)
 	if err != nil {
 		return nil, fmt.Errorf("argument --Version is not a valid semantic Version: %v", err)
@@ -89,6 +96,7 @@ func New(version string) (*PhpDevContainers, error) {
 		PatchVersion: patchVersion,
 		Suffix:       suffix,
 		PackageName:  packageName,
+		NoCache:      burstCache,
 
 		Distribution: defaultDistribution,
 		BuildNumber:  defaultBuildNumber,
