@@ -43,12 +43,6 @@ type PhpDevContainers struct {
 	BuildNumber int
 
 	// +private
-	BuildContainerImage string
-
-	// +private
-	BuildDirectoryName string
-
-	// +private
 	BuildDirectoryPath string
 
 	// +private
@@ -60,7 +54,6 @@ type PhpDevContainers struct {
 
 const defaultDistribution = "bullseye"
 const defaultBuildNumber = 1
-const buildContainerImageRepository = "docker.io/spaulg/debuilder"
 const packagePrefix = "php"
 const packageDirectoryBase = "/home/build/packages"
 
@@ -86,9 +79,7 @@ func New(version string) (*PhpDevContainers, error) {
 	packageName := packagePrefix + shortVersion + suffix
 
 	// Complete derived fields
-	buildContainerImage := buildContainerImageRepository + ":" + defaultDistribution
-	buildDirectoryName := packageName + "_" + fullVersion
-	buildDirectoryPath := packageDirectoryBase + "/" + buildDirectoryName
+	buildDirectoryPath := packageDirectoryBase + "/" + packageName + "_" + fullVersion
 
 	return &PhpDevContainers{
 		Version:      fullVersion,
@@ -103,8 +94,6 @@ func New(version string) (*PhpDevContainers, error) {
 		BuildNumber:  defaultBuildNumber,
 
 		BuildDirectoryRootPath: packageDirectoryBase,
-		BuildContainerImage:    buildContainerImage,
-		BuildDirectoryName:     buildDirectoryName,
 		BuildDirectoryPath:     buildDirectoryPath,
 	}, nil
 }
