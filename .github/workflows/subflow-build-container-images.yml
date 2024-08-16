@@ -68,7 +68,7 @@ jobs:
         shell: bash
         run: |
           dagger call --version ${{ matrix.full_version }} \
-            build-php-packages --source-archive "work/${{ matrix.full_version }}.orig.tar.gz" \
+            build-php-packages --source-archive "work/${{ matrix.full_version }}.orig.tar.gz" --architectures amd64,arm64 \
             export --path "work/${{ matrix.full_version }}"
 
       - name: Build and push container image
@@ -93,4 +93,4 @@ jobs:
           name: php-${{ matrix.short_version }}
           if-no-files-found: ignore
           path: |
-            assets/packages/*.deb
+            work/${{ matrix.full_version }}/*.deb
