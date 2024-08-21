@@ -76,15 +76,14 @@ jobs:
         shell: bash
         run: |
           dagger call --version ${{ matrix.full_version }} \
-            build-php-image --package-directory "work/${{ matrix.full_version }}" \
-            publish --address index.docker.io/spaulg/php-dev-containers:${{ matrix.short_version }}-amd64
+            build-php-image --package-directory "work/${{ matrix.full_version }}" --architectures amd64,arm64 --push
 
       - name: Build container image
         if: ${{ ! inputs.push }}
         shell: bash
         run: |
           dagger call --version ${{ matrix.full_version }} \
-            build-php-image --package-directory "work/${{ matrix.full_version }}"
+            build-php-image --package-directory "work/${{ matrix.full_version }}" --architectures amd64,arm64
 
       - name: Save deb files to build
         if: always()
