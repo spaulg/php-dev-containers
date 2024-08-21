@@ -37,7 +37,7 @@ type PhpDevContainers struct {
 	PackageName string
 
 	// +private
-	Distribution string
+	BaseImage string
 
 	// +private
 	BuildNumber int
@@ -52,7 +52,7 @@ type PhpDevContainers struct {
 	NoCache bool
 }
 
-const defaultDistribution = "bullseye"
+const baseImage = "docker.io/debian:bookworm-slim"
 const defaultBuildNumber = 1
 const packagePrefix = "php"
 const packageDirectoryBase = "/home/build/packages"
@@ -98,8 +98,8 @@ func New(
 		PackageName:  packageName,
 		NoCache:      burstCache,
 
-		Distribution: defaultDistribution,
-		BuildNumber:  defaultBuildNumber,
+		BaseImage:   baseImage,
+		BuildNumber: defaultBuildNumber,
 
 		BuildDirectoryRootPath: packageDirectoryBase,
 		BuildDirectoryPath:     buildDirectoryPath,

@@ -20,7 +20,7 @@ func (m *PhpDevContainers) DownloadPhpSource(ctx context.Context) (*dagger.File,
 	}
 
 	container, err := dag.Container().
-		From("debian:bullseye").
+		From(m.BaseImage).
 		Sync(ctx)
 
 	if err != nil {

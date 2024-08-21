@@ -49,7 +49,7 @@ func (m *PhpDevContainers) BuildPhpImage(
 
 		// Start container
 		container, err := dag.Container(dagger.ContainerOpts{Platform: platform}).
-			From("docker.io/debian:bullseye").
+			From(m.BaseImage).
 			Sync(ctx)
 
 		if err != nil {
