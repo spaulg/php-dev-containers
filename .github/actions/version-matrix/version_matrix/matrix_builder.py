@@ -123,12 +123,12 @@ def _append_version_entry(version_metadata: dict, matrix: dict, suffix: str = No
     :return:
     """
 
-    hyphenated_suffix = ""
+    metadata = ""
     if suffix is not None:
-        hyphenated_suffix = "-" + suffix
+        metadata = "+" + suffix
 
-    matrix["short_version"].append(version_metadata["short_version"] + hyphenated_suffix)
+    matrix["short_version"].append(version_metadata["short_version"] + metadata)
     matrix["include"].append({
-        "short_version": version_metadata["short_version"] + hyphenated_suffix,
-        "full_version": version_metadata["full_version"] + hyphenated_suffix,
+        "short_version": version_metadata["short_version"] + metadata,
+        "full_version": version_metadata["full_version"] + metadata,
     })
