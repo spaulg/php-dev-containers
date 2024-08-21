@@ -20,7 +20,7 @@ def build_matrix(username: str, password: str, repository: str) -> dict:
     """
 
     threads = []
-    matrix = {"short_version": [], "include": []}
+    matrix = {"short_sem_version": [], "include": []}
     failures = []
 
     for version in release_versions.list_all_versions():
@@ -40,7 +40,7 @@ def build_matrix(username: str, password: str, repository: str) -> dict:
         thread.join()
 
     # Sort versions
-    matrix["short_version"].sort()
+    matrix["short_sem_version"].sort()
 
     return matrix
 
@@ -127,8 +127,9 @@ def _append_version_entry(version_metadata: dict, matrix: dict, suffix: str = No
     if suffix is not None:
         metadata = "+" + suffix
 
-    matrix["short_version"].append(version_metadata["short_version"] + metadata)
+    matrix["short_sem_version"].append(version_metadata["short_version"] + metadata)
     matrix["include"].append({
-        "short_version": version_metadata["short_version"] + metadata,
-        "full_version": version_metadata["full_version"] + metadata,
+        "short_sem_version": version_metadata["short_version"] + metadata,
+        "full_sem_version": version_metadata["full_version"] + metadata,
+        "short_version": version_metadata["short_version"],
     })
