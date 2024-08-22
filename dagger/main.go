@@ -52,7 +52,7 @@ type PhpDevContainers struct {
 	NoCache bool
 }
 
-const baseImage = "docker.io/debian:bookworm-slim"
+const baseImage = "docker.io/debian"
 const defaultBuildNumber = 1
 const packagePrefix = "php"
 const packageDirectoryBase = "/home/build/packages"
@@ -60,6 +60,9 @@ const packageDirectoryBase = "/home/build/packages"
 func New(
 	// Version to build
 	version string,
+
+	// Debian distribution
+	distribution string,
 
 	// Burst cache
 	// +optional
@@ -98,7 +101,7 @@ func New(
 		PackageName:  packageName,
 		NoCache:      burstCache,
 
-		BaseImage:   baseImage,
+		BaseImage:   baseImage + ":" + distribution,
 		BuildNumber: defaultBuildNumber,
 
 		BuildDirectoryRootPath: packageDirectoryBase,

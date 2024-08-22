@@ -27,4 +27,5 @@ jobs:
     secrets: inherit
     with:
       matrix: ${{ needs.version_matrix.outputs.matrix }}
+      distribution: bookworm-slim
       push: ${{ github.ref_name == 'master' }}
