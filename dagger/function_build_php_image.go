@@ -68,7 +68,7 @@ func (m *PhpDevContainers) BuildPhpImage(
 		}
 
 		container, err = container.
-			WithDirectory("/packages", packageDirectory).
+			WithMountedDirectory("/packages", packageDirectory).
 			WithExec([]string{"sh", "-c", "rm /var/lib/dpkg/info/libc-bin.*"}).
 			WithExec([]string{"apt-get", "clean"}).
 			WithExec([]string{"apt", "update", "-y"}).
