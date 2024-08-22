@@ -8,6 +8,11 @@ on:
         description: 'JSON encoded matrix for versions to build'
         required: true
 
+      distribution:
+        type: string
+        description: 'Debian distribution to target'
+        required: true
+
       push:
         type: boolean
         description: 'Push the build to Docker Hub'
@@ -66,7 +71,7 @@ jobs:
       - name: Downloading PHP source
         shell: bash
         run: |
-          dagger call --version ${{ matrix.full_sem_version }} \
+          dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
             download-php-source \
             export --path "work/php.orig.tar.gz"
 
@@ -74,14 +79,14 @@ jobs:
         id: package_cache
         uses: actions/cache@v4
         with:
-          key: "${{ hashFiles('work/php.orig.tar.gz') }}-${{ hashFiles(steps.define_paths.outputs.source_path) }}"
+          key: "${{ inputs.distribution }}-${{ hashFiles('work/php.orig.tar.gz') }}-${{ hashFiles(steps.define_paths.outputs.source_path) }}"
           path: work/${{ matrix.full_sem_version }}
 
       - name: Build packages
         if: steps.package_cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          dagger call --version ${{ matrix.full_sem_version }} \
+          dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
             build-php-packages --source-archive "work/php.orig.tar.gz" --architectures amd64,arm64 \
             export --path "work/${{ matrix.full_sem_version }}"
 
@@ -89,14 +94,14 @@ jobs:
         if: ${{ inputs.push }}
         shell: bash
         run: |
-          dagger call --version ${{ matrix.full_sem_version }} \
+          dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
             build-php-image --package-directory "work/${{ matrix.full_sem_version }}" --architectures amd64,arm64 --push
 
       - name: Build container image
         if: ${{ ! inputs.push }}
         shell: bash
         run: |
-          dagger call --version ${{ matrix.full_sem_version }} \
+          dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
             build-php-image --package-directory "work/${{ matrix.full_sem_version }}" --architectures amd64,arm64
 
       - name: Save deb files to build
