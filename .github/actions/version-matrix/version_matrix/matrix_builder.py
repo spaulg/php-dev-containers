@@ -1,21 +1,14 @@
-import datetime
 import threading
 import logging
 
 from . import release_versions
-from . import docker
 from . import constant
 
 
-def build_matrix(username: str, password: str, repository: str) -> dict:
+def build_matrix() -> dict:
     """
-    Build the version matrix by spawning checks for validity
-    of the version detected against previous builds, their age
-    and if newer patch versions are available
+    Build the version matrix
 
-    :param username:
-    :param password:
-    :param repository:
     :return: None
     """
 
@@ -28,7 +21,7 @@ def build_matrix(username: str, password: str, repository: str) -> dict:
 
         thread = threading.Thread(
             target=_check_version,
-            args=(version, matrix, failures, username, password, repository),
+            args=(version, matrix, failures),
             name="BuildThread-" + version
         )
 
@@ -45,7 +38,7 @@ def build_matrix(username: str, password: str, repository: str) -> dict:
     return matrix
 
 
-def _check_version(version_number: str, matrix: dict, failures: list, username: str, password: str, repository: str):
+def _check_version(version_number: str, matrix: dict, failures: list):
     """
     Check a particular version for freshness
 
@@ -58,58 +51,23 @@ def _check_version(version_number: str, matrix: dict, failures: list, username: 
     :return:
     """
 
-    minimum_age = datetime.datetime.now() - datetime.timedelta(days=constant.MAX_AGE_IN_DAYS)
-
     try:
         version_metadata = release_versions.fetch_version_metadata(version_number)
         logging.debug(version_metadata)
 
-        tag_metadata = docker.fetch_tag_metadata(username, password, repository, version_number)
-        logging.debug(tag_metadata)
+        _append_version_entry(
+            version_metadata,
+            matrix,
+        )
 
-        if "platform" in tag_metadata:
-            for platform in tag_metadata:
-                last_modified = tag_metadata[platform]
-
-                if last_modified < version_metadata["release_date"] or last_modified < minimum_age:
-                    logging.info("Appending %s to build list", version_number)
-
-                    _append_version(
-                        version_metadata,
-                        matrix,
-                    )
-
-                    return
-        else:
-            # Version missing in docker, add for first build
-            _append_version(
-                version_metadata,
-                matrix,
-            )
+        _append_version_entry(
+            version_metadata,
+            matrix,
+            "zts",
+        )
 
     except Exception:
         failures.append(version_number)
-
-
-def _append_version(version_metadata: dict, matrix: dict):
-    """
-    Append both the nts and zts versions of a particular version to the version matrix
-
-    :param version_metadata:
-    :param matrix:
-    :return:
-    """
-
-    _append_version_entry(
-        version_metadata,
-        matrix,
-    )
-
-    _append_version_entry(
-        version_metadata,
-        matrix,
-        "zts",
-    )
 
 
 def _append_version_entry(version_metadata: dict, matrix: dict, suffix: str = None):
