@@ -2,10 +2,6 @@ name: 'Detect containers to build'
 
 on:
   workflow_call:
-    secrets:
-      DOCKERHUB_USERNAME: { required: true}
-      DOCKERHUB_TOKEN: { required: true}
-
     outputs:
       matrix:
         description: Detected versions build matrix
@@ -27,7 +23,3 @@ jobs:
       - name: Detect versions
         id: generate-matrix
         uses: ./.github/actions/version-matrix
-        with:
-          registry-username: ${{ secrets.DOCKERHUB_USERNAME }}
-          registry-password: ${{ secrets.DOCKERHUB_TOKEN }}
-          registry-repository: spaulg/php-dev-containers
