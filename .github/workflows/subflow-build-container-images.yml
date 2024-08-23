@@ -83,7 +83,7 @@ jobs:
           path: work/${{ matrix.full_sem_version }}
 
       - name: Build packages
-        if: steps.package_cache.outputs.cache-hit != 'true'
+        if: ${{ steps.package_cache.outputs.cache-hit != 'true' || contains(github.event.pull_request.labels[*].name, '@force-rebuild') }}
         shell: bash
         run: |
           dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
