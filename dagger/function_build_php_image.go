@@ -87,7 +87,7 @@ func (m *PhpDevContainers) BuildPhpImage(
 			return err
 		}
 
-		aptInstallCommand := []string{"apt", "install", "-y"}
+		aptInstallCommand := []string{"apt", "install", "-y", "--no-install-recommends", "--no-install-suggests"}
 		for _, file := range files {
 			if strings.HasSuffix(file, "_"+architecture+".deb") || strings.HasSuffix(file, "_all.deb") {
 				aptInstallCommand = append(aptInstallCommand, "/packages/"+file)
@@ -96,6 +96,8 @@ func (m *PhpDevContainers) BuildPhpImage(
 
 		container, err = container.
 			WithExec(aptInstallCommand).
+			WithExec([]string{"sh", "-c", "dpkg -l | grep \"1php+dev+containers\" | awk '{print $2}' | xargs apt-mark hold"}).
+			WithExec([]string{"apt", "install", "-y", "build-essential", "devscripts", "quilt", "git"}).
 			Sync(ctx)
 
 		if err != nil {
