@@ -97,7 +97,7 @@ func (m *PhpDevContainers) BuildPhpImage(
 		container, err = container.
 			WithExec(aptInstallCommand).
 			WithExec([]string{"sh", "-c", "dpkg -l | grep \"1php+dev+containers\" | awk '{print $2}' | xargs apt-mark hold"}).
-			WithExec([]string{"apt", "install", "-y", "build-essential", "devscripts", "quilt", "git"}).
+			WithExec([]string{"apt", "install", "-y", "build-essential", "devscripts", "quilt", "git", "clang"}).
 			WithExec([]string{"sh", "-c", "curl -sSfL https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-linux-$(uname -m).sh -o cmake-installer.sh && sh cmake-installer.sh --skip-license --prefix=/usr"}).
 			Sync(ctx)
 
