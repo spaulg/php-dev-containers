@@ -40,7 +40,7 @@ type PhpDevContainers struct {
 	BaseImage string
 
 	// +private
-	BuildNumber int
+	TagName string
 
 	// +private
 	BuildDirectoryPath string
@@ -53,7 +53,6 @@ type PhpDevContainers struct {
 }
 
 const baseImage = "docker.io/debian"
-const defaultBuildNumber = 1
 const packagePrefix = "php"
 const packageDirectoryBase = "/home/build/packages"
 
@@ -87,6 +86,7 @@ func New(
 	patchVersion := fmt.Sprintf("%d", semanticVersion.Patch())
 
 	packageName := packagePrefix + shortVersion + suffix
+	tagName := shortVersion + suffix
 
 	// Complete derived fields
 	buildDirectoryPath := packageDirectoryBase + "/" + packageName + "_" + fullVersion
@@ -101,8 +101,8 @@ func New(
 		PackageName:  packageName,
 		NoCache:      burstCache,
 
-		BaseImage:   baseImage + ":" + distribution,
-		BuildNumber: defaultBuildNumber,
+		BaseImage: baseImage + ":" + distribution,
+		TagName:   tagName,
 
 		BuildDirectoryRootPath: packageDirectoryBase,
 		BuildDirectoryPath:     buildDirectoryPath,

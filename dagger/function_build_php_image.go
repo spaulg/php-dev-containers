@@ -109,7 +109,7 @@ func (m *PhpDevContainers) BuildPhpImage(
 
 	if push {
 		var err error
-		_, err = dag.Container().Publish(ctx, DockerRepository+":"+m.PackageName, dagger.ContainerPublishOpts{
+		_, err = dag.Container().Publish(ctx, DockerRepository+":"+m.TagName, dagger.ContainerPublishOpts{
 			PlatformVariants: platformVariants,
 		})
 

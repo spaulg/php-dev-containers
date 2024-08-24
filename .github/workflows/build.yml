@@ -5,7 +5,7 @@ on:
     branches:
       - master
   pull_request:
-    types: [ labeled, synchronize ]
+    types: [ opened, reopened, labeled, synchronize ]
     branches:
       - master
   schedule:
