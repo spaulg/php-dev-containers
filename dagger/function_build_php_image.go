@@ -72,7 +72,7 @@ func (m *PhpDevContainers) BuildPhpImage(
 			WithExec([]string{"sh", "-c", "rm /var/lib/dpkg/info/libc-bin.*"}).
 			WithExec([]string{"apt-get", "clean"}).
 			WithExec([]string{"apt", "update", "-y"}).
-			WithExec([]string{"apt-get", "install", "libc-bin"}).
+			WithExec([]string{"apt", "install", "-y", "libc-bin"}).
 			Sync(ctx)
 
 		if err != nil {
@@ -98,7 +98,7 @@ func (m *PhpDevContainers) BuildPhpImage(
 			WithExec(aptInstallCommand).
 			WithExec([]string{"sh", "-c", "dpkg -l | grep \"1php+dev+containers\" | awk '{print $2}' | xargs apt-mark hold"}).
 			WithExec([]string{"apt", "install", "-y", "build-essential", "devscripts", "quilt", "git", "clang"}).
-			WithExec([]string{"sh", "-c", "curl -sSfL https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-linux-$(uname -m).sh -o cmake-installer.sh && sh cmake-installer.sh --skip-license --prefix=/usr"}).
+			WithExec([]string{"sh", "-c", "curl -sSfL https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-linux-$(uname -m).sh -o cmake-installer.sh && sh cmake-installer.sh --skip-license --prefix=/usr && rm -f cmake-installer.sh"}).
 			Sync(ctx)
 
 		if err != nil {
