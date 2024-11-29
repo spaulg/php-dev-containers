@@ -1,0 +1,34 @@
+From: Vagrant Cascadian <vagrant@reproducible-builds.org>
+Date: Tue, 25 Apr 2023 11:20:24 -0700
+Subject: Remove timestamps from "phar".
+
+Thanks to Jelle van der Waa!
+
+https://gist.github.com/jelly/96847934239aac19c512c54ca65d6baa
+---
+ ext/phar/phar.c | 2 +-
+ ext/phar/util.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+--- a/ext/phar/phar.c
++++ b/ext/phar/phar.c
+@@ -2959,7 +2959,7 @@
+ 			4: metadata-len
+ 			+: metadata
+ 		*/
+-		mytime = time(NULL);
++		mytime = 0;
+ 		phar_set_32(entry_buffer, entry->uncompressed_filesize);
+ 		phar_set_32(entry_buffer+4, mytime);
+ 		phar_set_32(entry_buffer+8, entry->compressed_filesize);
+--- a/ext/phar/util.c
++++ b/ext/phar/util.c
+@@ -701,7 +701,7 @@
+ 
+ 	phar_add_virtual_dirs(phar, path, path_len);
+ 	etemp.is_modified = 1;
+-	etemp.timestamp = time(0);
++	etemp.timestamp = 0;
+ 	etemp.is_crc_checked = 1;
+ 	etemp.phar = phar;
+ 	etemp.filename = estrndup(path, path_len);
