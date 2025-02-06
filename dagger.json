@@ -1,6 +1,6 @@
 {
   "name": "php-dev-containers",
+  "engineVersion": "v0.15.3",
   "sdk": "go",
-  "source": "dagger",
-  "engineVersion": "v0.12.5"
+  "source": "dagger"
 }
