@@ -109,6 +109,11 @@ ifeq (,$(filter $(DEB_HOST_ARCH),$(SANE_ARCHS)))
   RUN_TESTS := no
 endif
 
+CONFIGURE_TEST_EXECUTABLE_CONFIG :=
+ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
+	CONFIGURE_TEST_EXECUTABLE_CONFIG = --with-executable=$(shell php-config --php-binary)
+endif
+
 CONFIGURE_DTRACE_ARGS := --disable-dtrace
 
 ifeq ($(DEB_HOST_ARCH_OS),linux)
@@ -179,7 +184,8 @@ COMMON_CONFIG := \
 		--with-zlib=/usr \
 		  --with-zlib-dir=/usr \
 		$(CONFIGURE_ZTS) \
-		$(CONFIGURE_DTRACE_ARGS)
+		$(CONFIGURE_DTRACE_ARGS) \
+		$(CONFIGURE_TEST_EXECUTABLE_CONFIG)
 
 # disable all SAPIs in extension build
 export ext_config = \

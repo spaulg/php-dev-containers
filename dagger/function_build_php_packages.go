@@ -73,10 +73,11 @@ func (m *PhpDevContainers) BuildPhpPackages(
 		WithExec([]string{"apt", "update", "-y"}).
 		WithExec([]string{"apt", "install", "-y", "build-essential", "devscripts", "quilt", "git", "sudo"}).
 		WithExec([]string{"sh", "-c", "echo \"Cmnd_Alias DPKG_ADD_ARCH=/usr/bin/dpkg --add-architecture *\" >> /etc/sudoers.d/build"}).
+		WithExec([]string{"sh", "-c", "echo \"Cmnd_Alias APT_INSTALL=/usr/bin/apt install -y *\" >> /etc/sudoers.d/build"}).
 		WithExec([]string{"sh", "-c", "echo \"Cmnd_Alias APT_UPDATE=/usr/bin/apt update -y\" >> /etc/sudoers.d/build"}).
-		WithExec([]string{"sh", "-c", "echo \"Cmnd_Alias APT_REMOVE=/usr/bin/apt autoremove * \" >> /etc/sudoers.d/build"}).
+		WithExec([]string{"sh", "-c", "echo \"Cmnd_Alias APT_AUTOREMOVE=/usr/bin/apt autoremove * \" >> /etc/sudoers.d/build"}).
 		WithExec([]string{"sh", "-c", "echo \"Cmnd_Alias MK_BUILD_DEPS=/usr/bin/mk-build-deps * \" >> /etc/sudoers.d/build"}).
-		WithExec([]string{"sh", "-c", "echo \"build ALL=(ALL) NOPASSWD:MK_BUILD_DEPS, DPKG_ADD_ARCH, APT_UPDATE, APT_REMOVE\" >> /etc/sudoers.d/build"}).
+		WithExec([]string{"sh", "-c", "echo \"build ALL=(ALL) NOPASSWD:MK_BUILD_DEPS, DPKG_ADD_ARCH, APT_INSTALL, APT_UPDATE, APT_AUTOREMOVE\" >> /etc/sudoers.d/build"}).
 		WithExec([]string{"useradd", "-s", "/bin/bash", "-d", "/home/build", "-m", "-U", "build"}).
 		WithWorkdir("/home/build").
 		WithUser("build").
@@ -90,6 +91,33 @@ func (m *PhpDevContainers) BuildPhpPackages(
 	}
 
 	for architectureIndex, architecture := range buildArchitectures {
+		if architectureIndex > 0 {
+			// Install native packages for building phar in next architecture
+			directory := container.Directory("/home/build/packages")
+			files, err := directory.Glob(ctx, "**.deb")
+
+			if err != nil {
+				return nil, err
+			}
+
+			aptInstallCommand := []string{"sudo", "apt", "install", "-y", "--no-install-recommends", "--no-install-suggests"}
+			for _, file := range files {
+				if strings.HasSuffix(file, "_"+buildArchitectures[0]+".deb") || strings.HasSuffix(file, "_all.deb") {
+					if strings.HasPrefix(file, "php"+m.ShortVersion+"-") {
+						aptInstallCommand = append(aptInstallCommand, "/home/build/packages/"+file)
+					}
+				}
+			}
+
+			container, err = container.
+				WithExec(aptInstallCommand).
+				Sync(ctx)
+
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		container, err = container.
 			WithWorkdir("/home/build").
 			WithExec([]string{"rm", "-rf", m.BuildDirectoryPath}).

@@ -88,3 +88,4 @@
 0088-backport-zend_test-changes-zend_test_override_libxml.patch
 0089-NEWS.patch
 0090-Change-the-default-OPcache-optimization-to-7FFEBF5F-.patch
+0091-php-cross-compilation-phar.patch

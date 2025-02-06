@@ -44,3 +44,4 @@
 0044-Fail-the-build-when-the-dtrace-call-fails.patch
 0045-Override-result-of-AC_PROG_LN_S-to-fix-FTBFS-on-ppc6.patch
 0046-Update-gcc-func-attr-macro.patch
+0047-php-cross-compilation-phar.patch
