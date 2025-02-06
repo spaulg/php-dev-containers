@@ -44,3 +44,4 @@
 0044-Update-gcc-func-attr-macro.patch
 0045-scripts-php-.in-Explicitly-define-the-path-to-sed.patch
 0046-Remove-timestamps-from-phar.patch
+0047-php-cross-compilation-phar.patch
