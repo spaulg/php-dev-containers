@@ -22,11 +22,11 @@ type PhpVersion struct {
 func (m *PhpDevContainers) BuildPhpPackages(
 	ctx context.Context,
 
-	// Source archive file path
+// Source archive file path
 	sourceArchive *dagger.File,
 
-	// List of architectures to build packages for, in addition to the native architecture
-	//+optional
+// List of architectures to build packages for, in addition to the native architecture
+//+optional
 	architectures *string,
 ) (*dagger.Directory, error) {
 	var err error

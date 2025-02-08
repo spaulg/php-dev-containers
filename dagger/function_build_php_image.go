@@ -14,15 +14,15 @@ const DockerRepository = "index.docker.io/spaulg/php-dev-containers"
 func (m *PhpDevContainers) BuildPhpImage(
 	ctx context.Context,
 
-	// Packages directory path
+// Packages directory path
 	packageDirectory *dagger.Directory,
 
-	// List of architectures to build packages for, in addition to the native architecture
-	//+optional
+// List of architectures to build packages for, in addition to the native architecture
+//+optional
 	architectures *string,
 
-	// Push all container platform variants built under a single container manifest
-	//+optional
+// Push all container platform variants built under a single container manifest
+//+optional
 	push bool,
 ) error {
 	var buildArchitectures []string
@@ -95,7 +95,7 @@ func (m *PhpDevContainers) BuildPhpImage(
 		}
 
 		container, err = container.
-			WithExec([]string{"apt", "install", "-y", "build-essential", "devscripts", "quilt", "git", "clang", "php-common"}).
+			WithExec([]string{"apt", "install", "-y", "build-essential", "devscripts", "quilt", "git", "clang"}).
 			WithExec([]string{"sh", "-c", "curl -sSfL https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-linux-$(uname -m).sh -o cmake-installer.sh && sh cmake-installer.sh --skip-license --prefix=/usr && rm -f cmake-installer.sh"}).
 			WithExec(aptInstallCommand).
 			WithExec([]string{"sh", "-c", "dpkg -l | grep \"1php+dev+containers\" | awk '{print $2}' | xargs apt-mark hold"}).

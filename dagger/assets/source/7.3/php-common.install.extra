@@ -1,0 +1,8 @@
+debian/php-fpm-socket-helper /usr/lib/php/
+debian/php-helper /usr/lib/php/
+debian/php-maintscript-helper /usr/lib/php/
+debian/phpenmod /usr/sbin/
+debian/phpquery /usr/sbin/
+debian/phpsessionclean.service /lib/systemd/system/
+debian/phpsessionclean.timer /lib/systemd/system/
+debian/sessionclean /usr/lib/php/
