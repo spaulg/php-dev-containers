@@ -41,7 +41,7 @@ prepare-files-stamp:
 	  package=php$(PHP_NAME_VERSION)-$${module}; \
 	  extensions=$$(eval echo \$${$${module}_EXTENSIONS}); \
 	  description=$$(eval echo \$${$${module}_DESCRIPTION}); \
-	  for tmpl in preinst postinst postrm prerm bug-script bug-control triggers dirs substvars lintian-overrides; do \
+	  for tmpl in preinst postinst postrm prerm bug-script bug-control triggers dirs substvars lintian-overrides install; do \
 	      < debian/php-module.$${tmpl}.in \
 		$(SED) -e "/\#EXTRA\#/ r debian/$${package}.$${tmpl}.extra" | \
 		$(SED) -e "s,@package@,$${package},g"		\
