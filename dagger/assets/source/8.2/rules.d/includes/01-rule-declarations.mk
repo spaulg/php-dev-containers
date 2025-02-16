@@ -114,6 +114,11 @@ ifeq (,$(filter $(DEB_HOST_ARCH),$(SANE_ARCHS)))
   CONFIGURE_PCRE_JIT := --without-pcre-jit
 endif
 
+CONFIGURE_TEST_EXECUTABLE_CONFIG :=
+ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
+	CONFIGURE_TEST_EXECUTABLE_CONFIG = --with-executable=$(shell php-config --php-binary)
+endif
+
 #ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),amd64 armel armhf i386 ia64 powerpc))
 #  CONFIGURE_DTRACE_ARGS := --enable-dtrace
 #else
@@ -191,7 +196,8 @@ COMMON_CONFIG := \
 		  --with-zlib-dir=/usr \
 		$(CONFIGURE_ZTS) \
 		$(CONFIGURE_DTRACE_ARGS) \
-		$(CONFIGURE_PCRE_JIT)
+		$(CONFIGURE_PCRE_JIT) \
+		$(CONFIGURE_TEST_EXECUTABLE_CONFIG)
 
 # disable all SAPIs in extension build
 export ext_config = \

@@ -193,3 +193,4 @@
 0193-Sanitize-libxml2-globals-before-parsing.patch
 0194-NEWS.patch
 0195-autoconf-2.68.patch
+0196-php-cross-compilation-phar.patch

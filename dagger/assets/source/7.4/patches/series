@@ -70,3 +70,4 @@
 0070-Sanitize-libxml2-globals-before-parsing.patch
 0071-NEWS.patch
 0072-backport-zend_test-changes-zend_test_override_libxml.patch
+0073-php-cross-compilation-phar.patch

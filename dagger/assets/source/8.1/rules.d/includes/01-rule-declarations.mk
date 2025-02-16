@@ -118,6 +118,11 @@ ifneq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),amd64 i386))
   CONFIGURE_JIT_ARGS := --disable-opcache-jit
 endif
 
+CONFIGURE_TEST_EXECUTABLE_CONFIG :=
+ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
+	CONFIGURE_TEST_EXECUTABLE_CONFIG = --with-executable=$(shell php-config --php-binary)
+endif
+
 CONFIGURE_DTRACE_ARGS := --disable-dtrace
 
 ifeq ($(DEB_HOST_ARCH_OS),linux)
@@ -192,7 +197,8 @@ COMMON_CONFIG := \
 		$(CONFIGURE_ZTS) \
 		$(CONFIGURE_DTRACE_ARGS) \
 		$(CONFIGURE_PCRE_JIT) \
-		$(CONFIGURE_JIT_ARGS)
+		$(CONFIGURE_JIT_ARGS) \
+		$(CONFIGURE_TEST_EXECUTABLE_CONFIG)
 
 # disable all SAPIs in extension build
 export ext_config = \
