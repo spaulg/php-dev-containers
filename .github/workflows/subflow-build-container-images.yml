@@ -13,6 +13,11 @@ on:
         description: 'Debian distribution to target'
         required: true
 
+      max-retries:
+        type: string
+        description: 'The maximum number of retries to attempt on dagger operations'
+        required: true
+
       push:
         type: boolean
         description: 'Push the build to Docker Hub'
@@ -69,11 +74,14 @@ jobs:
           mkdir -p work
 
       - name: Downloading PHP source
-        shell: bash
-        run: |
-          dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
-            download-php-source \
-            export --path "work/php.orig.tar.gz"
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          command: |
+            dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
+              download-php-source \
+              export --path "work/php.orig.tar.gz"
 
       - name: Restore package cache
         id: package_cache
@@ -84,25 +92,34 @@ jobs:
 
       - name: Build packages
         if: ${{ steps.package_cache.outputs.cache-hit != 'true' || contains(github.event.pull_request.labels[*].name, '@force-rebuild') }}
-        shell: bash
-        run: |
-          dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
-            build-php-packages --source-archive "work/php.orig.tar.gz" --architectures amd64,arm64 \
-            export --path "work/${{ matrix.full_sem_version }}"
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 120
+          max_attempts: 3
+          command: |
+            dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
+              build-php-packages --source-archive "work/php.orig.tar.gz" --architectures amd64,arm64 \
+              export --path "work/${{ matrix.full_sem_version }}"
 
       - name: Build and push container image
         if: ${{ inputs.push }}
-        shell: bash
-        run: |
-          dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
-            build-php-image --package-directory "work/${{ matrix.full_sem_version }}" --architectures amd64,arm64 --push
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command: |
+            dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
+              build-php-image --package-directory "work/${{ matrix.full_sem_version }}" --architectures amd64,arm64 --push
 
       - name: Build container image
         if: ${{ ! inputs.push }}
-        shell: bash
-        run: |
-          dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
-            build-php-image --package-directory "work/${{ matrix.full_sem_version }}" --architectures amd64,arm64
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command: |
+            dagger call --version ${{ matrix.full_sem_version }} --distribution ${{ inputs.distribution }} \
+              build-php-image --package-directory "work/${{ matrix.full_sem_version }}" --architectures amd64,arm64
 
       - name: Save deb files to build
         if: always()
