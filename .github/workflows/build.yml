@@ -21,12 +21,26 @@ jobs:
     uses: ./.github/workflows/subflow-detect-versions.yml
     secrets: inherit
 
-  build_images:
-    name: Build Images
+  build_master_image:
+    name: Build Master Images
     needs: ['version_matrix']
+    if: ${{ github.ref_name == 'master' }}
     uses: ./.github/workflows/subflow-build-container-images.yml
     secrets: inherit
     with:
       matrix: ${{ needs.version_matrix.outputs.matrix }}
       distribution: bookworm-slim
-      push: ${{ github.ref_name == 'master' }}
+      max-retries: 3
+      push: true
+
+  build_pr_image:
+    name: Build PR Images
+    needs: ['version_matrix']
+    if: ${{ github.ref_name != 'master' }}
+    uses: ./.github/workflows/subflow-build-container-images.yml
+    secrets: inherit
+    with:
+      matrix: ${{ needs.version_matrix.outputs.matrix }}
+      distribution: bookworm-slim
+      max-retries: 0
+      push: false
