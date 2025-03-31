@@ -69,9 +69,11 @@ func (m *PhpDevContainers) BuildPhpImage(
 
 		container, err = container.
 			WithMountedDirectory("/packages", packageDirectory).
+			WithEnvVariable("DEBIAN_FRONTEND", "noninteractive").
 			WithExec([]string{"sh", "-c", "rm /var/lib/dpkg/info/libc-bin.*"}).
 			WithExec([]string{"apt-get", "clean"}).
 			WithExec([]string{"apt", "update", "-y"}).
+			WithExec([]string{"apt", "upgrade", "-y"}).
 			WithExec([]string{"apt", "install", "-y", "libc-bin"}).
 			Sync(ctx)
 
