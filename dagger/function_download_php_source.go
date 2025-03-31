@@ -39,7 +39,9 @@ func (m *PhpDevContainers) DownloadPhpSource(ctx context.Context) (*dagger.File,
 	}
 
 	container, err = container.
+		WithEnvVariable("DEBIAN_FRONTEND", "noninteractive").
 		WithExec([]string{"apt", "update", "-y"}).
+		WithExec([]string{"apt", "upgrade", "-y"}).
 		WithExec([]string{"apt", "install", "-y", "curl"}).
 		WithExec([]string{"curl", "-fsSL", sourceUrl, "-o", sourceArchiveName}).
 		Sync(ctx)

@@ -70,7 +70,9 @@ func (m *PhpDevContainers) BuildPhpPackages(
 
 	// Prepare environment
 	container, err = container.
+		WithEnvVariable("DEBIAN_FRONTEND", "noninteractive").
 		WithExec([]string{"apt", "update", "-y"}).
+		WithExec([]string{"apt", "upgrade", "-y"}).
 		WithExec([]string{"apt", "install", "-y", "build-essential", "devscripts", "quilt", "git", "sudo"}).
 		WithExec([]string{"sh", "-c", "echo \"Cmnd_Alias DPKG_ADD_ARCH=/usr/bin/dpkg --add-architecture *\" >> /etc/sudoers.d/build"}).
 		WithExec([]string{"sh", "-c", "echo \"Cmnd_Alias APT_INSTALL=/usr/bin/apt install -y *\" >> /etc/sudoers.d/build"}).
