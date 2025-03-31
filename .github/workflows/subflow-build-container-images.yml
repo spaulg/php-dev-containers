@@ -28,6 +28,8 @@ on:
       DOCKERHUB_USERNAME: { required: true}
       DOCKERHUB_TOKEN: { required: true}
 
+permissions: read-all
+
 env:
   DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
 
