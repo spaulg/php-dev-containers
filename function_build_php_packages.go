@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"dagger/phpdevcontainers/internal/dagger"
+	"github.com/spaulg/php-dev-containers/internal/dagger"
 	"fmt"
 	"github.com/dchest/uniuri"
 	"runtime"

@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"dagger/phpdevcontainers/internal/dagger"
+	"github.com/spaulg/php-dev-containers/internal/dagger"
 	"fmt"
 )
 

@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
-	"dagger/phpdevcontainers/internal/dagger"
-	"dagger/phpdevcontainers/utils"
-	"github.com/dchest/uniuri"
 	"runtime"
 	"strings"
+
+	"github.com/dchest/uniuri"
+
+	"github.com/spaulg/php-dev-containers/internal/dagger"
+	"github.com/spaulg/php-dev-containers/utils"
 )
 
 const DockerRepository = "index.docker.io/spaulg/php-dev-containers"
