@@ -1,3 +1,8 @@
 **/__pycache__
 /venv
 /*.log
+/dagger.gen.go
+/internal/dagger
+/internal/querybuilder
+/internal/telemetry
+/.env
