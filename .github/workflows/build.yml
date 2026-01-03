@@ -3,11 +3,11 @@ name: 'Rebuild PHP development containers'
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     types: [ opened, reopened, labeled, synchronize ]
     branches:
-      - master
+      - main
   schedule:
     - cron: '0 3 * * 0'
 
@@ -23,10 +23,10 @@ jobs:
     uses: ./.github/workflows/subflow-detect-versions.yml
     secrets: inherit
 
-  build_master_image:
-    name: Build Master Images
+  build_main_image:
+    name: Build Main Images
     needs: ['version_matrix']
-    if: ${{ github.ref_name == 'master' }}
+    if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/subflow-build-container-images.yml
     secrets: inherit
     with:
@@ -38,7 +38,7 @@ jobs:
   build_pr_image:
     name: Build PR Images
     needs: ['version_matrix']
-    if: ${{ github.ref_name != 'master' }}
+    if: ${{ github.ref_name != 'main' }}
     uses: ./.github/workflows/subflow-build-container-images.yml
     secrets: inherit
     with:
