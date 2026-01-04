@@ -3,7 +3,6 @@
 0003-debian_quirks.patch
 0004-libtool2.2.patch
 0005-we_WANT_libtool.patch
-0006-php-5.4.9-phpinfo.patch
 0007-extension_api.patch
 0008-no_apache_installed.patch
 0009-recode_is_shared.patch
