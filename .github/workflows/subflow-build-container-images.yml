@@ -72,7 +72,7 @@ jobs:
         id: define_paths
         shell: bash
         run: |
-          echo "source_path=dagger/assets/source/${{ matrix.short_version }}" >> "$GITHUB_OUTPUT"
+          echo "source_path=assets/source/${{ matrix.short_version }}" >> "$GITHUB_OUTPUT"
 
       - name: Ensure work directory exists
         shell: bash
