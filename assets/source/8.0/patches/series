@@ -45,3 +45,4 @@
 0046-Fix-GH-10187-Segfault-in-stripslashes-with-arm64.patch
 0047-opcache-aarch64.diff
 0048-php-cross-compilation-phar.patch
+0049-Fail-the-build-when-the-dtrace-call-fails.patch

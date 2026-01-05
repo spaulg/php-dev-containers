@@ -149,3 +149,4 @@
 0150-Fixed-bug-79412-Opcache-chokes-and-uses-100-CPU-on-s.patch
 0151-autoconf-2.68.patch
 0152-php-cross-compilation-phar.patch
+0153-Fail-the-build-when-the-dtrace-call-fails.patch
