@@ -70,3 +70,4 @@
 0071-NEWS.patch
 0072-backport-zend_test-changes-zend_test_override_libxml.patch
 0073-php-cross-compilation-phar.patch
+0074-Fail-the-build-when-the-dtrace-call-fails.patch

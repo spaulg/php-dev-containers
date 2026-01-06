@@ -119,7 +119,7 @@ ifneq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 	CONFIGURE_TEST_EXECUTABLE_CONFIG = --with-executable=$(shell php-config --php-binary)
 endif
 
-ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),amd64 armel armhf i386 ia64 powerpc))
+ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),amd64 arm64 armel armhf i386 ia64 powerpc))
   CONFIGURE_DTRACE_ARGS := --enable-dtrace
 else
   CONFIGURE_DTRACE_ARGS := --disable-dtrace

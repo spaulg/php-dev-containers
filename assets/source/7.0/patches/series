@@ -193,3 +193,4 @@
 0194-NEWS.patch
 0195-autoconf-2.68.patch
 0196-php-cross-compilation-phar.patch
+0197-Fail-the-build-when-the-dtrace-call-fails.patch

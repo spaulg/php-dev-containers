@@ -117,3 +117,4 @@
 0118-Change-the-default-OPcache-optimization-to-7FFEBF5F-.patch
 0119-autoconf-2.68.patch
 0120-php-cross-compilation-phar.patch
+0121-Fail-the-build-when-the-dtrace-call-fails.patch
