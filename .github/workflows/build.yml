@@ -31,7 +31,7 @@ jobs:
     secrets: inherit
     with:
       matrix: ${{ needs.version_matrix.outputs.matrix }}
-      distribution: bookworm-slim
+      distribution: bookworm
       max-retries: 3
       push: true
 
@@ -43,6 +43,6 @@ jobs:
     secrets: inherit
     with:
       matrix: ${{ needs.version_matrix.outputs.matrix }}
-      distribution: bookworm-slim
+      distribution: bookworm
       max-retries: 0
       push: false

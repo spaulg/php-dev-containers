@@ -74,6 +74,7 @@ func (m *PhpDevContainers) BuildPhpImage(
 			WithEnvVariable("DEBIAN_FRONTEND", "noninteractive").
 			WithExec([]string{"sh", "-c", "rm /var/lib/dpkg/info/libc-bin.*"}).
 			WithExec([]string{"apt-get", "clean"}).
+			WithExec([]string{"rm", "-rf", "/var/lib/apt/lists/*"}).
 			WithExec([]string{"apt", "update", "-y"}).
 			WithExec([]string{"apt", "upgrade", "-y"}).
 			WithExec([]string{"apt", "install", "-y", "libc-bin"}).
