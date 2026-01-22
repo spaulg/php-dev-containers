@@ -111,3 +111,19 @@ Subject: debian_quirks
  builddir="`pwd`"
  SED="@SED@"
  
+--- a/scripts/php-config.in
++++ b/scripts/php-config.in
+@@ -6,10 +6,10 @@
+ exec_prefix="@exec_prefix@"
+ version="@PHP_VERSION@"
+ vernum="@PHP_VERSION_ID@"
+-include_dir="@includedir@/php"
++include_dir="@includedir@/php/@DEBIAN_PHP_API@"
+ lib_dir="@orig_libdir@"
+-includes="-I$include_dir -I$include_dir/main -I$include_dir/TSRM -I$include_dir/Zend -I$include_dir/ext -I$include_dir/ext/date/lib"
+-ldflags="@PHP_LDFLAGS@"
++includes="-I$include_dir -I$include_dir/main -I$include_dir/TSRM -I$include_dir/Zend -I$include_dir/ext -I$include_dir/ext/date/lib $(getconf LFS_CFLAGS)"
++ldflags="-L$prefix/lib/php/@DEBIAN_PHP_API@ @PHP_LDFLAGS@"
+ libs="@EXTRA_LIBS@"
+ extension_dir="@EXTENSION_DIR@"
+ man_dir=`eval echo @mandir@`
