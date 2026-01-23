@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/spaulg/php-dev-containers/internal/dagger"
 	"fmt"
 	"github.com/dchest/uniuri"
+	"github.com/spaulg/php-dev-containers/internal/dagger"
 	"runtime"
 	"strings"
 )
@@ -22,11 +22,11 @@ type PhpVersion struct {
 func (m *PhpDevContainers) BuildPhpPackages(
 	ctx context.Context,
 
-// Source archive file path
+	// Source archive file path
 	sourceArchive *dagger.File,
 
-// List of architectures to build packages for, in addition to the native architecture
-//+optional
+	// List of architectures to build packages for, in addition to the native architecture
+	//+optional
 	architectures *string,
 ) (*dagger.Directory, error) {
 	var err error
@@ -71,6 +71,8 @@ func (m *PhpDevContainers) BuildPhpPackages(
 	// Prepare environment
 	container, err = container.
 		WithEnvVariable("DEBIAN_FRONTEND", "noninteractive").
+		WithExec([]string{"apt-get", "clean"}).
+		WithExec([]string{"rm", "-rf", "/var/lib/apt/lists/*"}).
 		WithExec([]string{"apt", "update", "-y"}).
 		WithExec([]string{"apt", "upgrade", "-y"}).
 		WithExec([]string{"apt", "install", "-y", "build-essential", "devscripts", "quilt", "git", "sudo"}).
