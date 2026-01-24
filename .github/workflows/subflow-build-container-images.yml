@@ -35,7 +35,7 @@ env:
 
 jobs:
   build_images:
-    name: PHP ${{ matrix.short_sem_version }}
+    name: PHP ${{ matrix.version }}
     runs-on: ubuntu-22.04
     timeout-minutes: 120
 
@@ -131,7 +131,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: php-${{ matrix.short_sem_version }}
+          name: php-${{ matrix.version }}
           if-no-files-found: ignore
           path: |
             work/${{ matrix.full_sem_version }}/*.deb
