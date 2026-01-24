@@ -24,4 +24,4 @@ jobs:
 
       - name: Detect versions
         id: generate-matrix
-        uses: ./.github/actions/version-matrix
+        uses: spaulg/php-version-matrix-action@main
