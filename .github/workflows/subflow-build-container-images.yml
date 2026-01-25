@@ -36,7 +36,7 @@ env:
 jobs:
   build_images:
     name: PHP ${{ matrix.version }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
 
     strategy:
@@ -45,10 +45,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache-dependency-path: "**/*.sum"
@@ -91,7 +91,7 @@ jobs:
 
       - name: Restore package cache
         id: package_cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           key: "${{ inputs.distribution }}-${{ hashFiles('work/php.orig.tar.gz') }}-${{ hashFiles(steps.define_paths.outputs.source_path) }}"
           path: work/${{ matrix.full_sem_version }}
@@ -129,7 +129,7 @@ jobs:
 
       - name: Save deb files to build
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: php-${{ matrix.version }}
           if-no-files-found: ignore
